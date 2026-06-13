@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>eGFR経過プロット｜加藤内科みなとクリニック</title>
+<style>
+  :root{
+    /* みなとクリニック仕様のブルー・アクア系統にカラーパレットを刷新 */
+    --ink:#222b35; --paper:#f0f5fa; --panel:#ffffff; --line:#cfe2f3;
+    --accent:#1a73e8; --accent-g:#20b2aa; --accent2:#d9383a;
+    --g1:#bfe3bf; --g2:#d9eebf; --g3a:#fdf3b0; --g3b:#fbdc8e; --g4:#f5b97f; --g5:#ef9d9d;
+  }
+  *{box-sizing:border-box}
+  body{margin:0;font-family:"Hiragino Sans","Yu Gothic UI","Noto Sans JP",sans-serif;background:var(--paper);color:var(--ink);font-size:14px}
+  header{background:linear-gradient(90deg,#1a73e8,#4fc3f7);color:#fff;padding:10px 18px;display:flex;align-items:baseline;gap:14px}
+  header h1{font-size:17px;margin:0;font-weight:700;letter-spacing:.05em}
+  header span{font-size:12px;opacity:.85}
+  .wrap{display:grid;grid-template-columns:330px 1fr;gap:12px;padding:12px;max-width:1500px;margin:0 auto}
+  @media(max-width:980px){.wrap{grid-template-columns:1fr}}
+  .panel{background:var(--panel);border:1px solid var(--line);border-radius:8px;padding:12px}
+  .panel h2{font-size:13px;margin:0 0 8px;color:#1a73e8;border-bottom:2px solid var(--accent);padding-bottom:4px}
+  textarea{width:100%;height:120px;font-family:Menlo,Consolas,monospace;font-size:12px;border:1px solid var(--line);border-radius:5px;padding:6px;resize:vertical}
+  label{display:block;font-size:12px;margin:8px 0 3px;color:#445}
+  input[type=date],input[type=number]{border:1px solid var(--line);border-radius:5px;padding:5px;font-size:13px;width:100%}
+  button{background:var(--accent-g);color:#fff;border:none;border-radius:5px;padding:7px 12px;font-size:13px;cursor:pointer;margin-top:8px}
+  button.sub{background:#5cbae6}
+  button.del{background:var(--accent2);padding:3px 8px;font-size:11px;margin:0}
+  button:hover{filter:brightness(1.1)}
+  .row{display:flex;gap:6px}
+  .row>*{flex:1}
+  .hint{font-size:11px;color:#67808d;margin-top:4px;line-height:1.5}
+  .regline{border:1px solid var(--line);border-radius:6px;padding:8px;margin-top:8px;background:#f7fbfd}
+  .regline .meta{font-size:12px;margin-top:5px;line-height:1.6}
+  .regline .slope{font-weight:700;color:var(--accent2)}
+  svg{width:100%;height:auto;display:block;user-select:none}
+  #chart svg{cursor:crosshair}
+  .stat{font-size:12px;color:#445;margin-top:6px}
+  .legend{display:flex;gap:14px;font-size:12px;margin-top:6px;flex-wrap:wrap}
+  .legend span{display:flex;align-items:center;gap:4px}
+  .dot{width:10px;height:10px;border-radius:50%;background:#8fb3e0;display:inline-block}
+  .bar{width:10px;height:10px;background:#b3b378;display:inline-block}
+  .rl{width:16px;height:0;border-top:2px solid #c0202a;display:inline-block}
+  .clinic{display:flex;align-items:center;justify-content:space-between;margin-bottom:6px}
+  .clinicR{display:flex;align-items:center;gap:8px;text-align:right}
+  .today{font-size:11px;color:#67808d}
+  .clinic .name{font-size:13px;font-weight:700;color:#1a73e8;letter-spacing:.06em}
+  .clinic h2{margin:0;border:none;padding:0;font-size:14px;color:var(--ink)}
+  .dragnote{font-size:12px;color:#1a73e8;font-weight:600;margin-top:2px}
+  .parsed{font-size:12px;color:#2c6e3c;margin-top:4px}
+
+  #printSummary{display:none}
+  @media print{
+    @page{size:A4 landscape;margin:8mm}
+    body{background:#fff;font-size:11px}
+    header,.wrap>div:first-child,#printBtn,.legend,.stat{display:none!important}
+    .wrap{display:block;padding:0;max-width:none}
+    .panel{border:none;padding:0;page-break-inside:avoid}
+    #chart svg{max-height:118mm;width:auto;max-width:100%;margin:0 auto}
+    .clinic{margin-bottom:2px}
+    #printSummary{display:block;margin-top:4px;font-size:10.5px;line-height:1.55;columns:2;column-gap:8mm}
+    #printSummary h3{font-size:11.5px;color:#1a73e8;margin:3px 0 1px;border-bottom:1px solid #ccc;break-after:avoid}
+    #printSummary p{margin:2px 0}
+  }
+</style>
+</head>
+<body>
+<header><h1>eGFR 経過プロット</h1><span>LTEP風 ｜ カルテからコピペ → プロット・回帰・将来予測</span></header>
+<div class="wrap">
+  <div>
+    <div class="panel">
+      <h2>1. eGFRデータ貼り付け</h2>
+      <textarea id="egfrInput" placeholder="デジカルの検査結果表をそのまま範囲選択してコピペでOK。
+日付と数値のペアを自動で拾います。
+（縦並び・横並び・表形式いずれも可）"></textarea>
+      <div class="parsed" id="egfrParsed"></div>
+      <div class="hint">日付（2024/1/5、2024-01-05、2024年1月5日、R6.1.5）の直後に出てくる数値をeGFRとして自動ペアリング。日付だけの行が並び、その後に数値だけの行が並ぶ形式（表の列コピー）も自動で対応します。</div>
+      <label>尿蛋白データ（任意・棒グラフ表示）</label>
+      <textarea id="upInput" style="height:70px" placeholder="同様に日付と数値（g/gCr または g/日）のペアを貼り付け"></textarea>
+      <label>生年月日（年齢軸・年齢指定に使用）</label>
+      <input type="date" id="dob">
+      <label>X軸範囲（日付または年齢のどちらでも。年齢入力で日付が自動セット）</label>
+      <div class="row">
+        <div><input type="date" id="xStart"></div>
+        <div><input type="number" id="xStartAge" placeholder="開始年齢(既定40)" min="0" max="120" step="1"></div>
+      </div>
+      <div class="row">
+        <div><input type="date" id="xEnd"></div>
+        <div><input type="number" id="xEndAge" placeholder="終了年齢(既定100)" min="0" max="120" step="1"></div>
+      </div>
+      <button id="plotBtn">プロット</button>
+      <button id="demoBtn" class="sub">デモデータ</button>
+    </div>
+    <div class="panel" style="margin-top:12px">
+      <h2>2. 腎機能の傾き</h2>
+      <div class="dragnote">★ グラフ上をマウスで横にドラッグするだけで傾きの線を追加できます</div>
+      <div class="hint">手入力する場合は下に日付または年齢を入れて「追加」。</div>
+      <div class="row">
+        <div><label>開始日</label><input type="date" id="regStart"></div>
+        <div><label>開始年齢</label><input type="number" id="regStartAge" min="0" max="120" step="0.5" placeholder="歳"></div>
+      </div>
+      <div class="row">
+        <div><label>終了日</label><input type="date" id="regEnd"></div>
+        <div><label>終了年齢</label><input type="number" id="regEndAge" min="0" max="120" step="0.5" placeholder="歳"></div>
+      </div>
+      <button id="addRegBtn">この範囲で傾きを計算</button>
+      <div id="regList"></div>
+    </div>
+  </div>
+  <div class="panel">
+    <div class="clinic">
+      <h2 style="font-size:16px;color:#1a73e8">経過グラフ <button id="printBtn" class="sub" style="margin:0 0 0 8px;padding:4px 10px;font-size:12px;background:#1a73e8">印刷</button></h2>
+      <div class="clinicR">
+        <img src="data:image/png;base64,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
