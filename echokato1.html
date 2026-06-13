@@ -1,0 +1,360 @@
+
+<!DOCTYPE html>
+<!-- saved from url=(0041)https://merry-granita-44267a.netlify.app/ -->
+<html lang="ja"><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+<title>エコーレポート作成｜加藤内科みなとクリニック</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Zen+Maru+Gothic:wght@400;500;700;900&display=swap" rel="stylesheet">
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'Zen Maru Gothic','Yu Gothic UI','Hiragino Sans','Meiryo',sans-serif;background:#FDFBF7;color:#222;padding:0 0 40px}
+.header{background:linear-gradient(135deg,#2E8B57,#4CAF50);color:#fff;padding:14px 22px;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px;position:sticky;top:0;z-index:10}
+.header h1{font-size:18px}
+.header a,.header button{color:#fff;background:rgba(255,255,255,.15);border:1px solid rgba(255,255,255,.35);border-radius:6px;padding:6px 13px;font-size:12px;text-decoration:none;cursor:pointer}
+.wrap{max-width:1200px;margin:14px auto;padding:0 14px;display:grid;grid-template-columns:1fr 380px;gap:14px;align-items:start}
+@media(max-width:880px){.wrap{grid-template-columns:1fr}}
+.modline{display:flex;gap:8px;align-items:center;margin-bottom:10px;font-size:12px;color:#555;flex-wrap:wrap;background:#fff;border-radius:8px;padding:9px 12px}
+.modline input{border:1px solid #cbd5e1;border-radius:5px;padding:5px 8px;font-size:12px}
+.preset{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:10px}
+.preset button{font-size:11px;padding:4px 10px;border:1px solid #94a3b8;border-radius:14px;background:#fff;color:#334155;cursor:pointer}
+.regions{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+@media(max-width:560px){.regions{grid-template-columns:1fr}}
+.region{background:#fff;border-radius:9px;box-shadow:0 1px 4px rgba(0,0,0,.06);padding:10px 12px}
+.region.hidden{display:none}
+.region h3{font-size:13px;color:#5E9426;margin-bottom:7px;border-bottom:1px solid #e2e8f0;padding-bottom:4px}
+.chips{display:flex;flex-wrap:wrap;gap:5px}
+.chip{font-size:12px;padding:4px 10px;border:1px solid #cbd5e1;border-radius:14px;background:#f8fafc;color:#334155;cursor:pointer;user-select:none;transition:.1s}
+.chip:hover{border-color:#2E8B57}
+.chip.on{background:#2E8B57;color:#fff;border-color:#2E8B57}
+.chip.norm.on{background:#5E9426;border-color:#5E9426}
+.chip.warn.on{background:#dc2626;border-color:#dc2626}
+.region.measures{grid-column:1/-1;background:#F5FAEB;border:1px solid #D9EAC0}
+.mrow{display:flex;align-items:center;gap:8px;margin:5px 0;flex-wrap:wrap}
+.mlabel{font-size:12px;font-weight:700;color:#5E9426;min-width:66px}
+.munit{font-size:11px;color:#94a3b8}
+.mchips{display:flex;gap:3px;flex-wrap:wrap}
+.mchip{font-size:12px;padding:3px 9px;border:1px solid #cbd5e1;border-radius:6px;background:#fff;color:#334155;cursor:pointer;user-select:none}
+.mchip:hover{border-color:#2E8B57}
+.mchip.on{background:#2E8B57;color:#fff;border-color:#2E8B57}
+.mchip.on.bad{background:#dc2626;border-color:#dc2626}
+.mreadout{display:inline-block;min-width:28px;text-align:center;font-weight:800;font-size:14px;color:#5E9426;background:#fff;border:1px solid #D9EAC0;border-radius:5px;padding:2px 6px}
+.mreadout.bad{color:#dc2626;border-color:#dc2626}
+.mdigits{display:inline-flex;align-items:center;gap:2px}
+.mdigits b{font-size:10px;color:#94a3b8;margin:0 1px;font-weight:700}
+.mclear{cursor:pointer;color:#cbd5e1;font-size:13px;padding:0 4px}
+.mclear:hover{color:#dc2626}
+.mhint{font-size:10px;color:#94a3b8;margin-left:4px}
+.ftext{width:100%;margin-top:6px;font-size:12px;padding:4px 7px;border:1px solid #e2e8f0;border-radius:5px}
+.side{position:sticky;top:64px}
+.report{background:#fff;border-radius:9px;box-shadow:0 1px 5px rgba(0,0,0,.08);padding:14px}
+.report h2{font-size:13px;color:#5E9426;margin:0 0 6px}
+#imp{width:100%;min-height:60px;font-size:13px;border:1px solid #e2e8f0;border-radius:6px;padding:8px;font-family:inherit;resize:vertical;margin-bottom:10px}
+#out{width:100%;min-height:300px;font-size:13px;line-height:1.65;border:1px solid #e2e8f0;border-radius:6px;padding:10px;font-family:inherit;resize:vertical}
+.btns{display:flex;gap:8px;margin-top:10px}
+.btns button{flex:1;border:none;border-radius:7px;padding:9px;font-size:13px;font-weight:700;cursor:pointer}
+.b-copy{background:#2E8B57;color:#fff}.b-reset{background:#fff;color:#777;border:1px solid #cbd5e1}
+.hint{font-size:11px;color:#94a3b8;margin-top:8px;line-height:1.5}
+</style>
+</head>
+<body>
+<div class="header">
+  <h1 style="display:flex;align-items:center;gap:10px"><img src="logo.png" alt="加藤内科みなとクリニックロゴ" style="width:32px;height:32px;background:#fff;border-radius:50%;padding:3px"> エコーレポート作成 <span style="font-weight:normal;opacity:.9;font-size:12px">検診マニュアル準拠・チップ式｜加藤内科みなとクリニック</span></h1>
+  <div><button onclick="resetAll()">全クリア</button></div>
+</div>
+
+<div class="wrap">
+  <div>
+    <div class="modline">
+      <label>検査種別:</label><input id="kind" placeholder="腹部超音波" style="width:150px">
+      <label>日付:</label><input id="date" type="date">
+      <label>目的・臨床情報:</label><input id="clin" placeholder="例) 健診・腹痛精査・肝炎フォロー" style="flex:1;min-width:160px">
+    </div>
+    <div class="preset">表示部位:
+      <button onclick="showSet(&#39;abd&#39;)">腹部一式</button>
+      <button onclick="showSet(&#39;neck&#39;)">頚部</button>
+      <button onclick="showSet(&#39;chest&#39;)">胸部</button>
+      <button onclick="showSet(&#39;heart&#39;)">心エコー</button>
+      <button onclick="showSet(&#39;soft&#39;)">体表</button>
+      <button onclick="showSet(&#39;all&#39;)">全部</button>
+    </div>
+    <div class="regions" id="regions"><div class="region measures hidden" data-g="heart"><h3>計測値（心エコー）（クリックで1刻み・キーボード不要）</h3><div class="mrow"><span class="mlabel">性別</span><span class="mdigits"><span class="mchip on" data-s="M">♂ 男</span><span class="mchip" data-s="F">♀ 女</span></span><span class="mhint">※正常値が男女で異なる項目に反映</span></div><div class="mrow"><span class="mlabel">LVDd</span><span class="mreadout">–</span><span class="mdigits"><b>十</b><span class="mchip" data-d="3">3</span><span class="mchip" data-d="4">4</span><span class="mchip" data-d="5">5</span><span class="mchip" data-d="6">6</span></span><span class="mdigits"><b>一</b><span class="mchip" data-d="0">0</span><span class="mchip" data-d="1">1</span><span class="mchip" data-d="2">2</span><span class="mchip" data-d="3">3</span><span class="mchip" data-d="4">4</span><span class="mchip" data-d="5">5</span><span class="mchip" data-d="6">6</span><span class="mchip" data-d="7">7</span><span class="mchip" data-d="8">8</span><span class="mchip" data-d="9">9</span></span><span class="munit">mm</span><span class="mclear" title="クリア">✕</span><span class="mhint">正常 ♂≤58 ♀≤52</span></div><div class="mrow"><span class="mlabel">LVDs</span><span class="mreadout">–</span><span class="mdigits"><b>十</b><span class="mchip" data-d="2">2</span><span class="mchip" data-d="3">3</span><span class="mchip" data-d="4">4</span></span><span class="mdigits"><b>一</b><span class="mchip" data-d="0">0</span><span class="mchip" data-d="1">1</span><span class="mchip" data-d="2">2</span><span class="mchip" data-d="3">3</span><span class="mchip" data-d="4">4</span><span class="mchip" data-d="5">5</span><span class="mchip" data-d="6">6</span><span class="mchip" data-d="7">7</span><span class="mchip" data-d="8">8</span><span class="mchip" data-d="9">9</span></span><span class="munit">mm</span><span class="mclear" title="クリア">✕</span><span class="mhint">正常 ♂≤40 ♀≤35</span></div><div class="mrow"><span class="mlabel">IVS</span><span class="mreadout">–</span><span class="mdigits"><b>十</b><span class="mchip" data-d="0">0</span><span class="mchip" data-d="1">1</span></span><span class="mdigits"><b>一</b><span class="mchip" data-d="0">0</span><span class="mchip" data-d="1">1</span><span class="mchip" data-d="2">2</span><span class="mchip" data-d="3">3</span><span class="mchip" data-d="4">4</span><span class="mchip" data-d="5">5</span><span class="mchip" data-d="6">6</span><span class="mchip" data-d="7">7</span><span class="mchip" data-d="8">8</span><span class="mchip" data-d="9">9</span></span><span class="munit">mm</span><span class="mclear" title="クリア">✕</span><span class="mhint">正常 ♂≤11 ♀≤10（厚いほどLVH）</span></div><div class="mrow"><span class="mlabel">PWT</span><span class="mreadout">–</span><span class="mdigits"><b>十</b><span class="mchip" data-d="0">0</span><span class="mchip" data-d="1">1</span></span><span class="mdigits"><b>一</b><span class="mchip" data-d="0">0</span><span class="mchip" data-d="1">1</span><span class="mchip" data-d="2">2</span><span class="mchip" data-d="3">3</span><span class="mchip" data-d="4">4</span><span class="mchip" data-d="5">5</span><span class="mchip" data-d="6">6</span><span class="mchip" data-d="7">7</span><span class="mchip" data-d="8">8</span><span class="mchip" data-d="9">9</span></span><span class="munit">mm</span><span class="mclear" title="クリア">✕</span><span class="mhint">正常 ♂≤11 ♀≤10</span></div><div class="mrow"><span class="mlabel">EF</span><span class="mreadout">–</span><span class="mdigits"><b>十</b><span class="mchip" data-d="1">1</span><span class="mchip" data-d="2">2</span><span class="mchip" data-d="3">3</span><span class="mchip" data-d="4">4</span><span class="mchip" data-d="5">5</span><span class="mchip" data-d="6">6</span><span class="mchip" data-d="7">7</span><span class="mchip" data-d="8">8</span></span><span class="mdigits"><b>一</b><span class="mchip" data-d="0">0</span><span class="mchip" data-d="1">1</span><span class="mchip" data-d="2">2</span><span class="mchip" data-d="3">3</span><span class="mchip" data-d="4">4</span><span class="mchip" data-d="5">5</span><span class="mchip" data-d="6">6</span><span class="mchip" data-d="7">7</span><span class="mchip" data-d="8">8</span><span class="mchip" data-d="9">9</span></span><span class="munit">%</span><span class="mclear" title="クリア">✕</span><span class="mhint">正常 ♂≥52 ♀≥54（軽度41-,中30-40,高度&lt;30）</span></div><div class="mrow"><span class="mlabel">LA</span><span class="mreadout">–</span><span class="mdigits"><b>十</b><span class="mchip" data-d="2">2</span><span class="mchip" data-d="3">3</span><span class="mchip" data-d="4">4</span><span class="mchip" data-d="5">5</span></span><span class="mdigits"><b>一</b><span class="mchip" data-d="0">0</span><span class="mchip" data-d="1">1</span><span class="mchip" data-d="2">2</span><span class="mchip" data-d="3">3</span><span class="mchip" data-d="4">4</span><span class="mchip" data-d="5">5</span><span class="mchip" data-d="6">6</span><span class="mchip" data-d="7">7</span><span class="mchip" data-d="8">8</span><span class="mchip" data-d="9">9</span></span><span class="munit">mm</span><span class="mclear" title="クリア">✕</span><span class="mhint">正常 ♂≤40 ♀≤38（LAVi≤34）</span></div><div class="mrow"><span class="mlabel">Ao</span><span class="mreadout">–</span><span class="mdigits"><b>十</b><span class="mchip" data-d="2">2</span><span class="mchip" data-d="3">3</span><span class="mchip" data-d="4">4</span></span><span class="mdigits"><b>一</b><span class="mchip" data-d="0">0</span><span class="mchip" data-d="1">1</span><span class="mchip" data-d="2">2</span><span class="mchip" data-d="3">3</span><span class="mchip" data-d="4">4</span><span class="mchip" data-d="5">5</span><span class="mchip" data-d="6">6</span><span class="mchip" data-d="7">7</span><span class="mchip" data-d="8">8</span><span class="mchip" data-d="9">9</span></span><span class="munit">mm</span><span class="mclear" title="クリア">✕</span><span class="mhint">概ね≤40・体格依存</span></div><div class="mrow"><span class="mlabel">E/e′</span><span class="mreadout">–</span><span class="mdigits"><b>十</b><span class="mchip" data-d="0">0</span><span class="mchip" data-d="1">1</span><span class="mchip" data-d="2">2</span></span><span class="mdigits"><b>一</b><span class="mchip" data-d="0">0</span><span class="mchip" data-d="1">1</span><span class="mchip" data-d="2">2</span><span class="mchip" data-d="3">3</span><span class="mchip" data-d="4">4</span><span class="mchip" data-d="5">5</span><span class="mchip" data-d="6">6</span><span class="mchip" data-d="7">7</span><span class="mchip" data-d="8">8</span><span class="mchip" data-d="9">9</span></span><span class="mclear" title="クリア">✕</span><span class="mhint">&gt;14で左房圧上昇示唆</span></div><div class="mrow"><span class="mlabel">TRPG</span><span class="mreadout">–</span><span class="mdigits"><b>十</b><span class="mchip" data-d="0">0</span><span class="mchip" data-d="1">1</span><span class="mchip" data-d="2">2</span><span class="mchip" data-d="3">3</span><span class="mchip" data-d="4">4</span><span class="mchip" data-d="5">5</span><span class="mchip" data-d="6">6</span></span><span class="mdigits"><b>一</b><span class="mchip" data-d="0">0</span><span class="mchip" data-d="1">1</span><span class="mchip" data-d="2">2</span><span class="mchip" data-d="3">3</span><span class="mchip" data-d="4">4</span><span class="mchip" data-d="5">5</span><span class="mchip" data-d="6">6</span><span class="mchip" data-d="7">7</span><span class="mchip" data-d="8">8</span><span class="mchip" data-d="9">9</span></span><span class="munit">mmHg</span><span class="mclear" title="クリア">✕</span><span class="mhint">TR速&gt;2.8m/s≒PG&gt;31で肺高血圧疑い</span></div><div class="mrow"><span class="mlabel">IVC(呼気)</span><span class="mreadout">–</span><span class="mdigits"><b>十</b><span class="mchip" data-d="0">0</span><span class="mchip" data-d="1">1</span><span class="mchip" data-d="2">2</span></span><span class="mdigits"><b>一</b><span class="mchip" data-d="0">0</span><span class="mchip" data-d="1">1</span><span class="mchip" data-d="2">2</span><span class="mchip" data-d="3">3</span><span class="mchip" data-d="4">4</span><span class="mchip" data-d="5">5</span><span class="mchip" data-d="6">6</span><span class="mchip" data-d="7">7</span><span class="mchip" data-d="8">8</span><span class="mchip" data-d="9">9</span></span><span class="munit">mm</span><span class="mclear" title="クリア">✕</span><span class="mhint">≤21mm&amp;虚脱&gt;50%で右房圧正常</span></div><div class="mrow"><span class="mlabel">IVC(吸気)</span><span class="mreadout">–</span><span class="mdigits"><b>十</b><span class="mchip" data-d="0">0</span><span class="mchip" data-d="1">1</span><span class="mchip" data-d="2">2</span></span><span class="mdigits"><b>一</b><span class="mchip" data-d="0">0</span><span class="mchip" data-d="1">1</span><span class="mchip" data-d="2">2</span><span class="mchip" data-d="3">3</span><span class="mchip" data-d="4">4</span><span class="mchip" data-d="5">5</span><span class="mchip" data-d="6">6</span><span class="mchip" data-d="7">7</span><span class="mchip" data-d="8">8</span><span class="mchip" data-d="9">9</span></span><span class="munit">mm</span><span class="mclear" title="クリア">✕</span><span class="mhint">呼気との差=虚脱率→右房圧推定</span></div><div class="mrow"><span class="mlabel">AV Vmax</span><span class="mreadout">–</span><span class="mdigits"><b>整</b><span class="mchip" data-d="1">1</span><span class="mchip" data-d="2">2</span><span class="mchip" data-d="3">3</span><span class="mchip" data-d="4">4</span><span class="mchip" data-d="5">5</span></span><span class="mdigits"><b>.</b><span class="mchip" data-d="0">0</span><span class="mchip" data-d="1">1</span><span class="mchip" data-d="2">2</span><span class="mchip" data-d="3">3</span><span class="mchip" data-d="4">4</span><span class="mchip" data-d="5">5</span><span class="mchip" data-d="6">6</span><span class="mchip" data-d="7">7</span><span class="mchip" data-d="8">8</span><span class="mchip" data-d="9">9</span></span><span class="munit">m/s</span><span class="mclear" title="クリア">✕</span><span class="mhint">AS自動判定（&lt;2.5硬化/2.5-2.9軽/3-3.9中/≥4高/≥5超高）</span></div><div class="mrow"><span class="mlabel">AV平均PG</span><span class="mreadout">–</span><span class="mdigits"><b>十</b><span class="mchip" data-d="0">0</span><span class="mchip" data-d="1">1</span><span class="mchip" data-d="2">2</span><span class="mchip" data-d="3">3</span><span class="mchip" data-d="4">4</span><span class="mchip" data-d="5">5</span><span class="mchip" data-d="6">6</span><span class="mchip" data-d="7">7</span><span class="mchip" data-d="8">8</span><span class="mchip" data-d="9">9</span></span><span class="mdigits"><b>一</b><span class="mchip" data-d="0">0</span><span class="mchip" data-d="1">1</span><span class="mchip" data-d="2">2</span><span class="mchip" data-d="3">3</span><span class="mchip" data-d="4">4</span><span class="mchip" data-d="5">5</span><span class="mchip" data-d="6">6</span><span class="mchip" data-d="7">7</span><span class="mchip" data-d="8">8</span><span class="mchip" data-d="9">9</span></span><span class="munit">mmHg</span><span class="mclear" title="クリア">✕</span><span class="mhint">AS自動判定（&lt;20軽/20-39中/40-59高/≥60超高）</span></div><div class="mrow"><span class="mlabel">AVA</span><span class="mreadout">–</span><span class="mdigits"><b>整</b><span class="mchip" data-d="0">0</span><span class="mchip" data-d="1">1</span><span class="mchip" data-d="2">2</span></span><span class="mdigits"><b>.</b><span class="mchip" data-d="0">0</span><span class="mchip" data-d="1">1</span><span class="mchip" data-d="2">2</span><span class="mchip" data-d="3">3</span><span class="mchip" data-d="4">4</span><span class="mchip" data-d="5">5</span><span class="mchip" data-d="6">6</span><span class="mchip" data-d="7">7</span><span class="mchip" data-d="8">8</span><span class="mchip" data-d="9">9</span></span><span class="munit">cm²</span><span class="mclear" title="クリア">✕</span><span class="mhint">AS自動判定（&gt;1.5軽/1-1.5中/&lt;1高/≤0.6超高）</span></div><div class="mrow"><span class="mlabel">e′中隔</span><span class="mreadout">–</span><span class="mdigits"><b>十</b><span class="mchip" data-d="0">0</span><span class="mchip" data-d="1">1</span></span><span class="mdigits"><b>一</b><span class="mchip" data-d="0">0</span><span class="mchip" data-d="1">1</span><span class="mchip" data-d="2">2</span><span class="mchip" data-d="3">3</span><span class="mchip" data-d="4">4</span><span class="mchip" data-d="5">5</span><span class="mchip" data-d="6">6</span><span class="mchip" data-d="7">7</span><span class="mchip" data-d="8">8</span><span class="mchip" data-d="9">9</span></span><span class="munit">cm/s</span><span class="mclear" title="クリア">✕</span><span class="mhint">&lt;7で異常（拡張能4変数）</span></div><div class="mrow"><span class="mlabel">e′側壁</span><span class="mreadout">–</span><span class="mdigits"><b>十</b><span class="mchip" data-d="0">0</span><span class="mchip" data-d="1">1</span><span class="mchip" data-d="2">2</span></span><span class="mdigits"><b>一</b><span class="mchip" data-d="0">0</span><span class="mchip" data-d="1">1</span><span class="mchip" data-d="2">2</span><span class="mchip" data-d="3">3</span><span class="mchip" data-d="4">4</span><span class="mchip" data-d="5">5</span><span class="mchip" data-d="6">6</span><span class="mchip" data-d="7">7</span><span class="mchip" data-d="8">8</span><span class="mchip" data-d="9">9</span></span><span class="munit">cm/s</span><span class="mclear" title="クリア">✕</span><span class="mhint">&lt;10で異常（拡張能4変数）</span></div><div class="mrow"><span class="mlabel">LAVi</span><span class="mreadout">–</span><span class="mdigits"><b>十</b><span class="mchip" data-d="1">1</span><span class="mchip" data-d="2">2</span><span class="mchip" data-d="3">3</span><span class="mchip" data-d="4">4</span><span class="mchip" data-d="5">5</span><span class="mchip" data-d="6">6</span></span><span class="mdigits"><b>一</b><span class="mchip" data-d="0">0</span><span class="mchip" data-d="1">1</span><span class="mchip" data-d="2">2</span><span class="mchip" data-d="3">3</span><span class="mchip" data-d="4">4</span><span class="mchip" data-d="5">5</span><span class="mchip" data-d="6">6</span><span class="mchip" data-d="7">7</span><span class="mchip" data-d="8">8</span><span class="mchip" data-d="9">9</span></span><span class="munit">mL/m²</span><span class="mclear" title="クリア">✕</span><span class="mhint">&gt;34で異常（拡張能4変数）</span></div></div><div class="region measures hidden" data-g="neck"><h3>計測値（頸動脈）（クリックで1刻み・キーボード不要）</h3><div class="mrow"><span class="mlabel">IMT(右)</span><span class="mreadout">–</span><span class="mdigits"><b>整</b><span class="mchip" data-d="0">0</span><span class="mchip" data-d="1">1</span><span class="mchip" data-d="2">2</span></span><span class="mdigits"><b>.</b><span class="mchip" data-d="0">0</span><span class="mchip" data-d="1">1</span><span class="mchip" data-d="2">2</span><span class="mchip" data-d="3">3</span><span class="mchip" data-d="4">4</span><span class="mchip" data-d="5">5</span><span class="mchip" data-d="6">6</span><span class="mchip" data-d="7">7</span><span class="mchip" data-d="8">8</span><span class="mchip" data-d="9">9</span></span><span class="munit">mm</span><span class="mclear" title="クリア">✕</span><span class="mhint">≥1.1で肥厚・プラーク</span></div><div class="mrow"><span class="mlabel">IMT(左)</span><span class="mreadout">–</span><span class="mdigits"><b>整</b><span class="mchip" data-d="0">0</span><span class="mchip" data-d="1">1</span><span class="mchip" data-d="2">2</span></span><span class="mdigits"><b>.</b><span class="mchip" data-d="0">0</span><span class="mchip" data-d="1">1</span><span class="mchip" data-d="2">2</span><span class="mchip" data-d="3">3</span><span class="mchip" data-d="4">4</span><span class="mchip" data-d="5">5</span><span class="mchip" data-d="6">6</span><span class="mchip" data-d="7">7</span><span class="mchip" data-d="8">8</span><span class="mchip" data-d="9">9</span></span><span class="munit">mm</span><span class="mclear" title="クリア">✕</span><span class="mhint">≥1.1で肥厚・プラーク</span></div><div class="mrow"><span class="mlabel">最大プラーク厚</span><span class="mreadout">–</span><span class="mdigits"><b>整</b><span class="mchip" data-d="0">0</span><span class="mchip" data-d="1">1</span><span class="mchip" data-d="2">2</span><span class="mchip" data-d="3">3</span><span class="mchip" data-d="4">4</span><span class="mchip" data-d="5">5</span></span><span class="mdigits"><b>.</b><span class="mchip" data-d="0">0</span><span class="mchip" data-d="1">1</span><span class="mchip" data-d="2">2</span><span class="mchip" data-d="3">3</span><span class="mchip" data-d="4">4</span><span class="mchip" data-d="5">5</span><span class="mchip" data-d="6">6</span><span class="mchip" data-d="7">7</span><span class="mchip" data-d="8">8</span><span class="mchip" data-d="9">9</span></span><span class="munit">mm</span><span class="mclear" title="クリア">✕</span><span class="mhint">最大IMT（プラーク高）</span></div><div class="mrow"><span class="mlabel">%狭窄(右)</span><span class="mreadout">–</span><span class="mdigits"><b>十</b><span class="mchip" data-d="0">0</span><span class="mchip" data-d="1">1</span><span class="mchip" data-d="2">2</span><span class="mchip" data-d="3">3</span><span class="mchip" data-d="4">4</span><span class="mchip" data-d="5">5</span><span class="mchip" data-d="6">6</span><span class="mchip" data-d="7">7</span><span class="mchip" data-d="8">8</span><span class="mchip" data-d="9">9</span></span><span class="mdigits"><b>一</b><span class="mchip" data-d="0">0</span><span class="mchip" data-d="1">1</span><span class="mchip" data-d="2">2</span><span class="mchip" data-d="3">3</span><span class="mchip" data-d="4">4</span><span class="mchip" data-d="5">5</span><span class="mchip" data-d="6">6</span><span class="mchip" data-d="7">7</span><span class="mchip" data-d="8">8</span><span class="mchip" data-d="9">9</span></span><span class="munit">%</span><span class="mclear" title="クリア">✕</span><span class="mhint">NASCET法。≥50%有意/≥70%高度</span></div><div class="mrow"><span class="mlabel">%狭窄(左)</span><span class="mreadout">–</span><span class="mdigits"><b>十</b><span class="mchip" data-d="0">0</span><span class="mchip" data-d="1">1</span><span class="mchip" data-d="2">2</span><span class="mchip" data-d="3">3</span><span class="mchip" data-d="4">4</span><span class="mchip" data-d="5">5</span><span class="mchip" data-d="6">6</span><span class="mchip" data-d="7">7</span><span class="mchip" data-d="8">8</span><span class="mchip" data-d="9">9</span></span><span class="mdigits"><b>一</b><span class="mchip" data-d="0">0</span><span class="mchip" data-d="1">1</span><span class="mchip" data-d="2">2</span><span class="mchip" data-d="3">3</span><span class="mchip" data-d="4">4</span><span class="mchip" data-d="5">5</span><span class="mchip" data-d="6">6</span><span class="mchip" data-d="7">7</span><span class="mchip" data-d="8">8</span><span class="mchip" data-d="9">9</span></span><span class="munit">%</span><span class="mclear" title="クリア">✕</span><span class="mhint">NASCET法。≥50%有意/≥70%高度</span></div><div class="mrow"><span class="mlabel">ICA-PSV(右)</span><span class="mreadout">–</span><span class="mdigits"><b>百</b><span class="mchip" data-d="0">0</span><span class="mchip" data-d="1">1</span><span class="mchip" data-d="2">2</span><span class="mchip" data-d="3">3</span><span class="mchip" data-d="4">4</span></span><span class="mdigits"><b>十</b><span class="mchip" data-d="0">0</span><span class="mchip" data-d="1">1</span><span class="mchip" data-d="2">2</span><span class="mchip" data-d="3">3</span><span class="mchip" data-d="4">4</span><span class="mchip" data-d="5">5</span><span class="mchip" data-d="6">6</span><span class="mchip" data-d="7">7</span><span class="mchip" data-d="8">8</span><span class="mchip" data-d="9">9</span></span><span class="mdigits"><b>一</b><span class="mchip" data-d="0">0</span><span class="mchip" data-d="1">1</span><span class="mchip" data-d="2">2</span><span class="mchip" data-d="3">3</span><span class="mchip" data-d="4">4</span><span class="mchip" data-d="5">5</span><span class="mchip" data-d="6">6</span><span class="mchip" data-d="7">7</span><span class="mchip" data-d="8">8</span><span class="mchip" data-d="9">9</span></span><span class="munit">cm/s</span><span class="mclear" title="クリア">✕</span><span class="mhint">&gt;125で≥50%/&gt;230で≥70%狭窄</span></div><div class="mrow"><span class="mlabel">ICA-PSV(左)</span><span class="mreadout">–</span><span class="mdigits"><b>百</b><span class="mchip" data-d="0">0</span><span class="mchip" data-d="1">1</span><span class="mchip" data-d="2">2</span><span class="mchip" data-d="3">3</span><span class="mchip" data-d="4">4</span></span><span class="mdigits"><b>十</b><span class="mchip" data-d="0">0</span><span class="mchip" data-d="1">1</span><span class="mchip" data-d="2">2</span><span class="mchip" data-d="3">3</span><span class="mchip" data-d="4">4</span><span class="mchip" data-d="5">5</span><span class="mchip" data-d="6">6</span><span class="mchip" data-d="7">7</span><span class="mchip" data-d="8">8</span><span class="mchip" data-d="9">9</span></span><span class="mdigits"><b>一</b><span class="mchip" data-d="0">0</span><span class="mchip" data-d="1">1</span><span class="mchip" data-d="2">2</span><span class="mchip" data-d="3">3</span><span class="mchip" data-d="4">4</span><span class="mchip" data-d="5">5</span><span class="mchip" data-d="6">6</span><span class="mchip" data-d="7">7</span><span class="mchip" data-d="8">8</span><span class="mchip" data-d="9">9</span></span><span class="munit">cm/s</span><span class="mclear" title="クリア">✕</span><span class="mhint">&gt;125で≥50%/&gt;230で≥70%狭窄</span></div></div><div class="region measures" data-g="abd"><h3>計測値（腹部）（クリックで1刻み・キーボード不要）</h3><div class="mrow"><span class="mlabel">総胆管径(CBD)</span><span class="mreadout">–</span><span class="mdigits"><b>十</b><span class="mchip" data-d="0">0</span><span class="mchip" data-d="1">1</span></span><span class="mdigits"><b>一</b><span class="mchip" data-d="0">0</span><span class="mchip" data-d="1">1</span><span class="mchip" data-d="2">2</span><span class="mchip" data-d="3">3</span><span class="mchip" data-d="4">4</span><span class="mchip" data-d="5">5</span><span class="mchip" data-d="6">6</span><span class="mchip" data-d="7">7</span><span class="mchip" data-d="8">8</span><span class="mchip" data-d="9">9</span></span><span class="munit">mm</span><span class="mclear" title="クリア">✕</span><span class="mhint">&gt;7で拡張（加齢で+1目安）</span></div><div class="mrow"><span class="mlabel">主膵管径</span><span class="mreadout">–</span><span class="mdigits"><b>整</b><span class="mchip" data-d="0">0</span><span class="mchip" data-d="1">1</span><span class="mchip" data-d="2">2</span><span class="mchip" data-d="3">3</span></span><span class="mdigits"><b>.</b><span class="mchip" data-d="0">0</span><span class="mchip" data-d="1">1</span><span class="mchip" data-d="2">2</span><span class="mchip" data-d="3">3</span><span class="mchip" data-d="4">4</span><span class="mchip" data-d="5">5</span><span class="mchip" data-d="6">6</span><span class="mchip" data-d="7">7</span><span class="mchip" data-d="8">8</span><span class="mchip" data-d="9">9</span></span><span class="munit">mm</span><span class="mclear" title="クリア">✕</span><span class="mhint">&gt;3で拡張</span></div><div class="mrow"><span class="mlabel">胆嚢ポリープ径</span><span class="mreadout">–</span><span class="mdigits"><b>十</b><span class="mchip" data-d="0">0</span><span class="mchip" data-d="1">1</span><span class="mchip" data-d="2">2</span></span><span class="mdigits"><b>一</b><span class="mchip" data-d="0">0</span><span class="mchip" data-d="1">1</span><span class="mchip" data-d="2">2</span><span class="mchip" data-d="3">3</span><span class="mchip" data-d="4">4</span><span class="mchip" data-d="5">5</span><span class="mchip" data-d="6">6</span><span class="mchip" data-d="7">7</span><span class="mchip" data-d="8">8</span><span class="mchip" data-d="9">9</span></span><span class="munit">mm</span><span class="mclear" title="クリア">✕</span><span class="mhint">≥10mmで要精査</span></div><div class="mrow"><span class="mlabel">腹部大動脈径</span><span class="mreadout">–</span><span class="mdigits"><b>十</b><span class="mchip" data-d="1">1</span><span class="mchip" data-d="2">2</span><span class="mchip" data-d="3">3</span><span class="mchip" data-d="4">4</span><span class="mchip" data-d="5">5</span><span class="mchip" data-d="6">6</span></span><span class="mdigits"><b>一</b><span class="mchip" data-d="0">0</span><span class="mchip" data-d="1">1</span><span class="mchip" data-d="2">2</span><span class="mchip" data-d="3">3</span><span class="mchip" data-d="4">4</span><span class="mchip" data-d="5">5</span><span class="mchip" data-d="6">6</span><span class="mchip" data-d="7">7</span><span class="mchip" data-d="8">8</span><span class="mchip" data-d="9">9</span></span><span class="munit">mm</span><span class="mclear" title="クリア">✕</span><span class="mhint">≥30でAAA/≥50で外科相談</span></div><div class="mrow"><span class="mlabel">腎長径(右)</span><span class="mreadout">–</span><span class="mdigits"><b>百</b><span class="mchip" data-d="0">0</span><span class="mchip" data-d="1">1</span></span><span class="mdigits"><b>十</b><span class="mchip" data-d="0">0</span><span class="mchip" data-d="1">1</span><span class="mchip" data-d="2">2</span><span class="mchip" data-d="3">3</span><span class="mchip" data-d="4">4</span><span class="mchip" data-d="5">5</span><span class="mchip" data-d="6">6</span><span class="mchip" data-d="7">7</span><span class="mchip" data-d="8">8</span><span class="mchip" data-d="9">9</span></span><span class="mdigits"><b>一</b><span class="mchip" data-d="0">0</span><span class="mchip" data-d="1">1</span><span class="mchip" data-d="2">2</span><span class="mchip" data-d="3">3</span><span class="mchip" data-d="4">4</span><span class="mchip" data-d="5">5</span><span class="mchip" data-d="6">6</span><span class="mchip" data-d="7">7</span><span class="mchip" data-d="8">8</span><span class="mchip" data-d="9">9</span></span><span class="munit">mm</span><span class="mclear" title="クリア">✕</span><span class="mhint">正常≒100-110mm</span></div><div class="mrow"><span class="mlabel">腎長径(左)</span><span class="mreadout">–</span><span class="mdigits"><b>百</b><span class="mchip" data-d="0">0</span><span class="mchip" data-d="1">1</span></span><span class="mdigits"><b>十</b><span class="mchip" data-d="0">0</span><span class="mchip" data-d="1">1</span><span class="mchip" data-d="2">2</span><span class="mchip" data-d="3">3</span><span class="mchip" data-d="4">4</span><span class="mchip" data-d="5">5</span><span class="mchip" data-d="6">6</span><span class="mchip" data-d="7">7</span><span class="mchip" data-d="8">8</span><span class="mchip" data-d="9">9</span></span><span class="mdigits"><b>一</b><span class="mchip" data-d="0">0</span><span class="mchip" data-d="1">1</span><span class="mchip" data-d="2">2</span><span class="mchip" data-d="3">3</span><span class="mchip" data-d="4">4</span><span class="mchip" data-d="5">5</span><span class="mchip" data-d="6">6</span><span class="mchip" data-d="7">7</span><span class="mchip" data-d="8">8</span><span class="mchip" data-d="9">9</span></span><span class="munit">mm</span><span class="mclear" title="クリア">✕</span><span class="mhint">正常≒100-110mm</span></div><div class="mrow"><span class="mlabel">脾長径</span><span class="mreadout">–</span><span class="mdigits"><b>百</b><span class="mchip" data-d="0">0</span><span class="mchip" data-d="1">1</span></span><span class="mdigits"><b>十</b><span class="mchip" data-d="0">0</span><span class="mchip" data-d="1">1</span><span class="mchip" data-d="2">2</span><span class="mchip" data-d="3">3</span><span class="mchip" data-d="4">4</span><span class="mchip" data-d="5">5</span><span class="mchip" data-d="6">6</span><span class="mchip" data-d="7">7</span><span class="mchip" data-d="8">8</span><span class="mchip" data-d="9">9</span></span><span class="mdigits"><b>一</b><span class="mchip" data-d="0">0</span><span class="mchip" data-d="1">1</span><span class="mchip" data-d="2">2</span><span class="mchip" data-d="3">3</span><span class="mchip" data-d="4">4</span><span class="mchip" data-d="5">5</span><span class="mchip" data-d="6">6</span><span class="mchip" data-d="7">7</span><span class="mchip" data-d="8">8</span><span class="mchip" data-d="9">9</span></span><span class="munit">mm</span><span class="mclear" title="クリア">✕</span><span class="mhint">&gt;100mmで脾腫</span></div></div><div class="region" data-g="abd" data-i="0"><h3>肝臓</h3><div class="chips"><span class="chip norm">異常なし</span><span class="chip ">脂肪肝(軽度)</span><span class="chip ">脂肪肝(中等度)</span><span class="chip ">脂肪肝(高度)</span><span class="chip ">肝嚢胞</span><span class="chip ">肝血管腫疑い</span><span class="chip warn">肝腫瘤・SOL(要精査)</span><span class="chip ">慢性肝障害疑い(辺縁鈍化・表面不整)</span><span class="chip ">肝内胆管拡張</span><span class="chip ">描出不良</span></div><input class="ftext" placeholder="補足（サイズ・左右・S区域・mm 等）"></div><div class="region" data-g="abd" data-i="1"><h3>胆嚢</h3><div class="chips"><span class="chip norm">異常なし</span><span class="chip ">胆石</span><span class="chip ">胆嚢ポリープ</span><span class="chip ">腺筋腫症疑い</span><span class="chip ">胆嚢壁肥厚</span><span class="chip ">胆泥(デブリ)</span><span class="chip ">胆嚢腫大</span><span class="chip ">胆嚢摘出後</span><span class="chip ">描出不良</span></div><input class="ftext" placeholder="補足（サイズ・左右・S区域・mm 等）"></div><div class="region" data-g="abd" data-i="2"><h3>総胆管(胆管)</h3><div class="chips"><span class="chip norm">拡張なし</span><span class="chip ">総胆管拡張</span><span class="chip warn">総胆管結石疑い</span><span class="chip ">描出不良</span></div><input class="ftext" placeholder="補足（サイズ・左右・S区域・mm 等）"></div><div class="region" data-g="abd" data-i="3"><h3>膵臓</h3><div class="chips"><span class="chip norm">異常なし</span><span class="chip ">主膵管拡張</span><span class="chip ">膵嚢胞</span><span class="chip warn">膵腫瘤(要精査)</span><span class="chip ">石灰化</span><span class="chip ">脂肪性変化</span><span class="chip ">ガスで描出不良</span></div><input class="ftext" placeholder="補足（サイズ・左右・S区域・mm 等）"></div><div class="region" data-g="abd" data-i="4"><h3>脾臓</h3><div class="chips"><span class="chip norm">脾腫なし</span><span class="chip ">脾腫</span><span class="chip ">脾嚢胞</span><span class="chip ">副脾</span><span class="chip ">描出不良</span></div><input class="ftext" placeholder="補足（サイズ・左右・S区域・mm 等）"></div><div class="region" data-g="abd" data-i="5"><h3>腎臓</h3><div class="chips"><span class="chip norm">異常なし</span><span class="chip ">腎嚢胞(右)</span><span class="chip ">腎嚢胞(左)</span><span class="chip ">腎結石(右)</span><span class="chip ">腎結石(左)</span><span class="chip ">水腎症(右)</span><span class="chip ">水腎症(左)</span><span class="chip ">腎萎縮</span><span class="chip warn">腎腫瘤(要精査)</span><span class="chip ">皮質菲薄・輝度上昇(CKD様)</span><span class="chip ">描出不良</span></div><input class="ftext" placeholder="補足（サイズ・左右・S区域・mm 等）"></div><div class="region" data-g="abd" data-i="6"><h3>膀胱</h3><div class="chips"><span class="chip norm">異常なし</span><span class="chip ">残尿あり</span><span class="chip ">壁肥厚</span><span class="chip ">結石</span><span class="chip warn">腫瘤疑い</span><span class="chip ">尿充満良好</span><span class="chip ">カテーテル留置</span></div><input class="ftext" placeholder="補足（サイズ・左右・S区域・mm 等）"></div><div class="region" data-g="abd" data-i="7"><h3>前立腺</h3><div class="chips"><span class="chip norm">異常なし</span><span class="chip ">前立腺肥大</span><span class="chip ">石灰化(結石)</span><span class="chip warn">腫瘤疑い</span></div><input class="ftext" placeholder="補足（サイズ・左右・S区域・mm 等）"></div><div class="region" data-g="abd" data-i="8"><h3>腹部大動脈</h3><div class="chips"><span class="chip norm">異常なし</span><span class="chip norm">AAA(瘤)なし</span><span class="chip warn">腹部大動脈瘤(AAA)疑い</span><span class="chip ">プラーク(動脈硬化性変化)</span><span class="chip ">描出不良</span></div><input class="ftext" placeholder="補足（サイズ・左右・S区域・mm 等）"></div><div class="region" data-g="abd" data-i="9"><h3>腸管</h3><div class="chips"><span class="chip norm">異常なし</span><span class="chip ">壁肥厚</span><span class="chip ">拡張・腸液貯留</span><span class="chip ">蠕動低下</span><span class="chip warn">虫垂腫大疑い</span><span class="chip ">便貯留</span><span class="chip ">ガスで描出不良</span></div><input class="ftext" placeholder="補足（サイズ・左右・S区域・mm 等）"></div><div class="region" data-g="abd" data-i="10"><h3>腹水</h3><div class="chips"><span class="chip norm">なし</span><span class="chip ">少量</span><span class="chip ">中等量</span><span class="chip ">多量</span><span class="chip ">ダグラス窩に貯留</span></div><input class="ftext" placeholder="補足（サイズ・左右・S区域・mm 等）"></div><div class="region" data-g="abd" data-i="11"><h3>骨盤腔(子宮・卵巣)</h3><div class="chips"><span class="chip norm">異常なし</span><span class="chip ">子宮筋腫</span><span class="chip ">子宮内膜肥厚</span><span class="chip ">卵巣嚢腫(右)</span><span class="chip ">卵巣嚢腫(左)</span><span class="chip ">卵巣腫大</span><span class="chip ">遊離液貯留</span><span class="chip ">描出不良</span></div><input class="ftext" placeholder="補足（サイズ・左右・S区域・mm 等）"></div><div class="region hidden" data-g="neck" data-i="12"><h3>甲状腺</h3><div class="chips"><span class="chip norm">異常なし</span><span class="chip ">腫大</span><span class="chip ">結節</span><span class="chip ">びまん性変化(橋本/バセドウ疑い)</span><span class="chip ">嚢胞</span><span class="chip ">石灰化</span></div><input class="ftext" placeholder="補足（サイズ・左右・S区域・mm 等）"></div><div class="region hidden" data-g="neck" data-i="13"><h3>頚部リンパ節</h3><div class="chips"><span class="chip norm">異常なし</span><span class="chip ">腫大</span><span class="chip warn">長径短径比の低下(要精査)</span></div><input class="ftext" placeholder="補足（サイズ・左右・S区域・mm 等）"></div><div class="region hidden" data-g="neck" data-i="14"><h3>頚動脈 右</h3><div class="chips"><span class="chip norm">異常なし</span><span class="chip ">IMT肥厚</span><span class="chip ">プラークあり</span><span class="chip warn">低輝度(不安定)プラーク</span><span class="chip ">石灰化プラーク</span><span class="chip warn">潰瘍形成</span><span class="chip warn">可動性プラーク</span><span class="chip warn">閉塞</span><span class="chip ">描出不良</span></div><input class="ftext" placeholder="補足（サイズ・左右・S区域・mm 等）"></div><div class="region hidden" data-g="neck" data-i="15"><h3>頚動脈 左</h3><div class="chips"><span class="chip norm">異常なし</span><span class="chip ">IMT肥厚</span><span class="chip ">プラークあり</span><span class="chip warn">低輝度(不安定)プラーク</span><span class="chip ">石灰化プラーク</span><span class="chip warn">潰瘍形成</span><span class="chip warn">可動性プラーク</span><span class="chip warn">閉塞</span><span class="chip ">描出不良</span></div><input class="ftext" placeholder="補足（サイズ・左右・S区域・mm 等）"></div><div class="region hidden" data-g="neck" data-i="16"><h3>椎骨動脈</h3><div class="chips"><span class="chip norm">順行性</span><span class="chip warn">逆行性(鎖骨下盗血疑い)</span><span class="chip ">血流低下</span><span class="chip ">評価不能</span></div><input class="ftext" placeholder="補足（サイズ・左右・S区域・mm 等）"></div><div class="region hidden" data-g="chest" data-i="17"><h3>胸水</h3><div class="chips"><span class="chip norm">なし</span><span class="chip ">右</span><span class="chip ">左</span><span class="chip ">両側</span><span class="chip ">少量</span><span class="chip ">中等量以上</span></div><input class="ftext" placeholder="補足（サイズ・左右・S区域・mm 等）"></div><div class="region hidden" data-g="heart" data-i="18"><h3>左室 サイズ・壁厚</h3><div class="chips"><span class="chip norm">正常</span><span class="chip ">左室拡大</span><span class="chip ">求心性肥大(壁肥厚)</span><span class="chip ">非対称性中隔肥厚(ASH)</span><span class="chip ">心尖部肥大</span><span class="chip ">左室壁菲薄化</span><span class="chip ">左室瘤</span></div><input class="ftext" placeholder="補足（サイズ・左右・S区域・mm 等）"></div><div class="region hidden" data-g="heart" data-i="19"><h3>左室 収縮能(EF)</h3><div class="chips"><span class="chip norm">正常 EF≥50%</span><span class="chip ">軽度低下 EF40-49%</span><span class="chip warn">中等度低下 EF30-39%</span><span class="chip warn">高度低下 EF&lt;30%</span><span class="chip ">過収縮(hyperdynamic)</span></div><input class="ftext" placeholder="補足（サイズ・左右・S区域・mm 等）"></div><div class="region hidden" data-g="heart" data-i="20"><h3>左室 局所壁運動</h3><div class="chips"><span class="chip norm">異常なし</span><span class="chip ">前壁中隔の壁運動低下</span><span class="chip ">下壁の壁運動低下</span><span class="chip ">側壁の壁運動低下</span><span class="chip ">心尖部の壁運動低下</span><span class="chip warn">びまん性低下</span><span class="chip ">心尖部dyskinesis</span></div><input class="ftext" placeholder="補足（サイズ・左右・S区域・mm 等）"></div><div class="region hidden" data-g="heart" data-i="21"><h3>左室 拡張能</h3><div class="chips"><span class="chip norm">正常</span><span class="chip ">弛緩障害(GradeⅠ)</span><span class="chip ">偽正常化(GradeⅡ)</span><span class="chip warn">拘束型(GradeⅢ)</span><span class="chip ">E/e比上昇(左房圧上昇示唆)</span><span class="chip ">評価困難</span></div><input class="ftext" placeholder="補足（サイズ・左右・S区域・mm 等）"></div><div class="region hidden" data-g="heart" data-i="22"><h3>左房(LA)</h3><div class="chips"><span class="chip norm">正常</span><span class="chip ">軽度拡大</span><span class="chip warn">中等度〜高度拡大</span><span class="chip warn">左房内血栓疑い</span><span class="chip ">もやもやエコー(SEC)</span></div><input class="ftext" placeholder="補足（サイズ・左右・S区域・mm 等）"></div><div class="region hidden" data-g="heart" data-i="23"><h3>右室・右房</h3><div class="chips"><span class="chip norm">正常</span><span class="chip ">右室拡大</span><span class="chip warn">右室収縮低下(TAPSE低下)</span><span class="chip ">右房拡大</span><span class="chip warn">右室圧負荷(中隔扁平/D-shape)</span></div><input class="ftext" placeholder="補足（サイズ・左右・S区域・mm 等）"></div><div class="region hidden" data-g="heart" data-i="24"><h3>大動脈弁(AV)</h3><div class="chips"><span class="chip norm">正常</span><span class="chip ">硬化(sclerosis)</span><span class="chip ">二尖弁</span><span class="chip ">AS 軽度</span><span class="chip ">AS 中等度</span><span class="chip warn">AS 高度</span><span class="chip ">AR 軽度</span><span class="chip ">AR 中等度</span><span class="chip warn">AR 高度</span></div><input class="ftext" placeholder="補足（サイズ・左右・S区域・mm 等）"></div><div class="region hidden" data-g="heart" data-i="25"><h3>僧帽弁(MV)</h3><div class="chips"><span class="chip norm">正常</span><span class="chip ">MR 軽度</span><span class="chip ">MR 中等度</span><span class="chip warn">MR 高度</span><span class="chip warn">MS(僧帽弁狭窄)</span><span class="chip ">僧帽弁逸脱(MVP)</span><span class="chip ">弁輪石灰化(MAC)</span><span class="chip warn">腱索断裂疑い</span></div><input class="ftext" placeholder="補足（サイズ・左右・S区域・mm 等）"></div><div class="region hidden" data-g="heart" data-i="26"><h3>三尖弁・肺高血圧</h3><div class="chips"><span class="chip norm">TR なし〜軽度</span><span class="chip ">TR 中等度</span><span class="chip warn">TR 高度</span><span class="chip warn">TRPGより肺高血圧疑い</span></div><input class="ftext" placeholder="補足（サイズ・左右・S区域・mm 等）"></div><div class="region hidden" data-g="heart" data-i="27"><h3>肺動脈弁(PV)</h3><div class="chips"><span class="chip norm">正常</span><span class="chip ">肺動脈弁逆流(PR)</span><span class="chip ">肺動脈弁狭窄(PS)</span></div><input class="ftext" placeholder="補足（サイズ・左右・S区域・mm 等）"></div><div class="region hidden" data-g="heart" data-i="28"><h3>大動脈(基部・上行)</h3><div class="chips"><span class="chip norm">正常</span><span class="chip ">大動脈基部拡大</span><span class="chip warn">上行大動脈拡大</span><span class="chip warn">大動脈解離疑い</span></div><input class="ftext" placeholder="補足（サイズ・左右・S区域・mm 等）"></div><div class="region hidden" data-g="heart" data-i="29"><h3>心膜(心嚢液)</h3><div class="chips"><span class="chip norm">なし</span><span class="chip ">少量</span><span class="chip ">中等量</span><span class="chip warn">多量</span><span class="chip warn">心タンポナーデ徴候</span></div><input class="ftext" placeholder="補足（サイズ・左右・S区域・mm 等）"></div><div class="region hidden" data-g="heart" data-i="30"><h3>下大静脈(IVC)・右房圧</h3><div class="chips"><span class="chip norm">正常(呼吸性変動良好)</span><span class="chip ">IVC拡大</span><span class="chip warn">呼吸性変動低下(右房圧上昇)</span></div><input class="ftext" placeholder="補足（サイズ・左右・S区域・mm 等）"></div><div class="region hidden" data-g="heart" data-i="31"><h3>心内構造物・シャント</h3><div class="chips"><span class="chip norm">異常なし</span><span class="chip warn">心内血栓疑い</span><span class="chip warn">疣腫疑い(感染性心内膜炎)</span><span class="chip warn">心臓腫瘍疑い</span><span class="chip ">心房中隔欠損(ASD)疑い</span><span class="chip ">心室中隔欠損(VSD)疑い</span><span class="chip ">卵円孔開存(PFO)疑い</span></div><input class="ftext" placeholder="補足（サイズ・左右・S区域・mm 等）"></div><div class="region hidden" data-g="soft" data-i="32"><h3>体表・軟部</h3><div class="chips"><span class="chip norm">異常なし</span><span class="chip ">蜂窩織炎様(皮下浮腫・敷石状)</span><span class="chip warn">膿瘍形成疑い</span><span class="chip ">皮下腫瘤</span><span class="chip ">粉瘤疑い</span><span class="chip ">リンパ節腫大</span><span class="chip ">血腫</span><span class="chip ">異物</span></div><input class="ftext" placeholder="補足（サイズ・左右・S区域・mm 等）"></div><div class="region hidden" data-g="soft" data-i="33"><h3>その他</h3><div class="chips"></div><input class="ftext" placeholder="補足（サイズ・左右・S区域・mm 等）"></div></div>
+  </div>
+
+  <div class="side">
+    <div class="report">
+      <h2>インプレッション（要約）</h2>
+      <textarea id="imp" placeholder="例) 中等度脂肪肝。胆嚢ポリープ。肝嚢胞。要経過観察。"></textarea>
+      <h2>レポート（コピーしてカルテへ）</h2>
+      <textarea id="out" placeholder="チップを押すと所見が組み上がります。"></textarea>
+      <div class="btns">
+        <button class="b-copy" onclick="copyOut()">📋 コピー</button>
+        <button class="b-reset" onclick="resetAll()">クリア</button>
+      </div>
+      <div class="hint">触れた部位だけ出力。サイズ・左右・S区域などは各部位の補足欄か本文を直接編集。チップ文言は腹部超音波検診判定マニュアル等を参考にした叩き台です（要望で調整可）。</div>
+    </div>
+  </div>
+</div>
+
+<script>
+// g=グループ(abd/neck/chest/soft) chip分類: |n=正常(緑) |w=要精査(赤)
+var REGIONS = [
+ {n:'肝臓', g:'abd', c:['異常なし|n','脂肪肝(軽度)','脂肪肝(中等度)','脂肪肝(高度)','肝嚢胞','肝血管腫疑い','肝腫瘤・SOL(要精査)|w','慢性肝障害疑い(辺縁鈍化・表面不整)','肝内胆管拡張','描出不良']},
+ {n:'胆嚢', g:'abd', c:['異常なし|n','胆石','胆嚢ポリープ','腺筋腫症疑い','胆嚢壁肥厚','胆泥(デブリ)','胆嚢腫大','胆嚢摘出後','描出不良']},
+ {n:'総胆管(胆管)', g:'abd', c:['拡張なし|n','総胆管拡張','総胆管結石疑い|w','描出不良']},
+ {n:'膵臓', g:'abd', c:['異常なし|n','主膵管拡張','膵嚢胞','膵腫瘤(要精査)|w','石灰化','脂肪性変化','ガスで描出不良']},
+ {n:'脾臓', g:'abd', c:['脾腫なし|n','脾腫','脾嚢胞','副脾','描出不良']},
+ {n:'腎臓', g:'abd', c:['異常なし|n','腎嚢胞(右)','腎嚢胞(左)','腎結石(右)','腎結石(左)','水腎症(右)','水腎症(左)','腎萎縮','腎腫瘤(要精査)|w','皮質菲薄・輝度上昇(CKD様)','描出不良']},
+ {n:'膀胱', g:'abd', c:['異常なし|n','残尿あり','壁肥厚','結石','腫瘤疑い|w','尿充満良好','カテーテル留置']},
+ {n:'前立腺', g:'abd', c:['異常なし|n','前立腺肥大','石灰化(結石)','腫瘤疑い|w']},
+ {n:'腹部大動脈', g:'abd', c:['異常なし|n','AAA(瘤)なし|n','腹部大動脈瘤(AAA)疑い|w','プラーク(動脈硬化性変化)','描出不良']},
+ {n:'腸管', g:'abd', c:['異常なし|n','壁肥厚','拡張・腸液貯留','蠕動低下','虫垂腫大疑い|w','便貯留','ガスで描出不良']},
+ {n:'腹水', g:'abd', c:['なし|n','少量','中等量','多量','ダグラス窩に貯留']},
+ {n:'骨盤腔(子宮・卵巣)', g:'abd', c:['異常なし|n','子宮筋腫','子宮内膜肥厚','卵巣嚢腫(右)','卵巣嚢腫(左)','卵巣腫大','遊離液貯留','描出不良']},
+ {n:'甲状腺', g:'neck', c:['異常なし|n','腫大','結節','びまん性変化(橋本/バセドウ疑い)','嚢胞','石灰化']},
+ {n:'頚部リンパ節', g:'neck', c:['異常なし|n','腫大','長径短径比の低下(要精査)|w']},
+ {n:'頚動脈 右', g:'neck', c:['異常なし|n','IMT肥厚','プラークあり','低輝度(不安定)プラーク|w','石灰化プラーク','潰瘍形成|w','可動性プラーク|w','閉塞|w','描出不良']},
+ {n:'頚動脈 左', g:'neck', c:['異常なし|n','IMT肥厚','プラークあり','低輝度(不安定)プラーク|w','石灰化プラーク','潰瘍形成|w','可動性プラーク|w','閉塞|w','描出不良']},
+ {n:'椎骨動脈', g:'neck', c:['順行性|n','逆行性(鎖骨下盗血疑い)|w','血流低下','評価不能']},
+ {n:'胸水', g:'chest', c:['なし|n','右','左','両側','少量','中等量以上']},
+ {n:'左室 サイズ・壁厚', g:'heart', c:['正常|n','左室拡大','求心性肥大(壁肥厚)','非対称性中隔肥厚(ASH)','心尖部肥大','左室壁菲薄化','左室瘤']},
+ {n:'左室 収縮能(EF)', g:'heart', c:['正常 EF≥50%|n','軽度低下 EF40-49%','中等度低下 EF30-39%|w','高度低下 EF<30%|w','過収縮(hyperdynamic)']},
+ {n:'左室 局所壁運動', g:'heart', c:['異常なし|n','前壁中隔の壁運動低下','下壁の壁運動低下','側壁の壁運動低下','心尖部の壁運動低下','びまん性低下|w','心尖部dyskinesis']},
+ {n:'左室 拡張能', g:'heart', c:['正常|n','弛緩障害(GradeⅠ)','偽正常化(GradeⅡ)','拘束型(GradeⅢ)|w','E/e比上昇(左房圧上昇示唆)','評価困難']},
+ {n:'左房(LA)', g:'heart', c:['正常|n','軽度拡大','中等度〜高度拡大|w','左房内血栓疑い|w','もやもやエコー(SEC)']},
+ {n:'右室・右房', g:'heart', c:['正常|n','右室拡大','右室収縮低下(TAPSE低下)|w','右房拡大','右室圧負荷(中隔扁平/D-shape)|w']},
+ {n:'大動脈弁(AV)', g:'heart', c:['正常|n','硬化(sclerosis)','二尖弁','AS 軽度','AS 中等度','AS 高度|w','AR 軽度','AR 中等度','AR 高度|w']},
+ {n:'僧帽弁(MV)', g:'heart', c:['正常|n','MR 軽度','MR 中等度','MR 高度|w','MS(僧帽弁狭窄)|w','僧帽弁逸脱(MVP)','弁輪石灰化(MAC)','腱索断裂疑い|w']},
+ {n:'三尖弁・肺高血圧', g:'heart', c:['TR なし〜軽度|n','TR 中等度','TR 高度|w','TRPGより肺高血圧疑い|w']},
+ {n:'肺動脈弁(PV)', g:'heart', c:['正常|n','肺動脈弁逆流(PR)','肺動脈弁狭窄(PS)']},
+ {n:'大動脈(基部・上行)', g:'heart', c:['正常|n','大動脈基部拡大','上行大動脈拡大|w','大動脈解離疑い|w']},
+ {n:'心膜(心嚢液)', g:'heart', c:['なし|n','少量','中等量','多量|w','心タンポナーデ徴候|w']},
+ {n:'下大静脈(IVC)・右房圧', g:'heart', c:['正常(呼吸性変動良好)|n','IVC拡大','呼吸性変動低下(右房圧上昇)|w']},
+ {n:'心内構造物・シャント', g:'heart', c:['異常なし|n','心内血栓疑い|w','疣腫疑い(感染性心内膜炎)|w','心臓腫瘍疑い|w','心房中隔欠損(ASD)疑い','心室中隔欠損(VSD)疑い','卵円孔開存(PFO)疑い']},
+ {n:'体表・軟部', g:'soft', c:['異常なし|n','蜂窩織炎様(皮下浮腫・敷石状)','膿瘍形成疑い|w','皮下腫瘤','粉瘤疑い','リンパ節腫大','血腫','異物']},
+ {n:'その他', g:'soft', c:[]}
+];
+var SETS={abd:['abd'],neck:['neck'],chest:['chest'],heart:['heart'],soft:['soft'],all:['abd','neck','chest','heart','soft']};
+
+var sel={}, ft={};
+// 心エコー計測値（クリック1発入力）。hi=正常上限超で赤 / lo=正常下限未満で赤（目安・要調整）
+// 閾値はASE/EACVI 2015 Chamber Quant / 2016 Diastolic / 2017 Valve・RAPに準拠（hiM/hiF=男女別正常上限・loM/loF=下限）
+var MEASURES=[
+ {k:'LVDd',u:'mm',t:[3,4,5,6],hiM:58,hiF:52,n:'正常 ♂≤58 ♀≤52'},
+ {k:'LVDs',u:'mm',t:[2,3,4],hiM:40,hiF:35,n:'正常 ♂≤40 ♀≤35'},
+ {k:'IVS',u:'mm',t:[0,1],hiM:11,hiF:10,n:'正常 ♂≤11 ♀≤10（厚いほどLVH）'},
+ {k:'PWT',u:'mm',t:[0,1],hiM:11,hiF:10,n:'正常 ♂≤11 ♀≤10'},
+ {k:'EF',u:'%',t:[1,2,3,4,5,6,7,8],loM:52,loF:54,n:'正常 ♂≥52 ♀≥54（軽度41-,中30-40,高度<30）'},
+ {k:'LA',u:'mm',t:[2,3,4,5],hiM:40,hiF:38,n:'正常 ♂≤40 ♀≤38（LAVi≤34）'},
+ {k:'Ao',u:'mm',t:[2,3,4],hi:40,n:'概ね≤40・体格依存'},
+ {k:'E/e′',u:'',t:[0,1,2],hi:14,n:'>14で左房圧上昇示唆'},
+ {k:'TRPG',u:'mmHg',t:[0,1,2,3,4,5,6],hi:31,n:'TR速>2.8m/s≒PG>31で肺高血圧疑い'},
+ {k:'IVC(呼気)',u:'mm',t:[0,1,2],hi:21,n:'≤21mm&虚脱>50%で右房圧正常'},
+ {k:'IVC(吸気)',u:'mm',t:[0,1,2],n:'呼気との差=虚脱率→右房圧推定'},
+ {k:'AV Vmax',u:'m/s',dec:true,t:[1,2,3,4,5],n:'AS自動判定（<2.5硬化/2.5-2.9軽/3-3.9中/≥4高/≥5超高）'},
+ {k:'AV平均PG',u:'mmHg',t:[0,1,2,3,4,5,6,7,8,9],n:'AS自動判定（<20軽/20-39中/40-59高/≥60超高）'},
+ {k:'AVA',u:'cm²',dec:true,t:[0,1,2],n:'AS自動判定（>1.5軽/1-1.5中/<1高/≤0.6超高）'},
+ {k:'e′中隔',u:'cm/s',t:[0,1],lo:7,n:'<7で異常（拡張能4変数）'},
+ {k:'e′側壁',u:'cm/s',t:[0,1,2],lo:10,n:'<10で異常（拡張能4変数）'},
+ {k:'LAVi',u:'mL/m²',t:[1,2,3,4,5,6],hi:34,n:'>34で異常（拡張能4変数）'},
+ // ===== 頸動脈（ASE/日超医・IMT/プラーク/狭窄/PSV） =====
+ {k:'IMT(右)',g:'neck',u:'mm',dec:true,t:[0,1,2],hi:1.0,n:'≥1.1で肥厚・プラーク'},
+ {k:'IMT(左)',g:'neck',u:'mm',dec:true,t:[0,1,2],hi:1.0,n:'≥1.1で肥厚・プラーク'},
+ {k:'最大プラーク厚',g:'neck',u:'mm',dec:true,t:[0,1,2,3,4,5],n:'最大IMT（プラーク高）'},
+ {k:'%狭窄(右)',g:'neck',u:'%',t:[0,1,2,3,4,5,6,7,8,9],n:'NASCET法。≥50%有意/≥70%高度'},
+ {k:'%狭窄(左)',g:'neck',u:'%',t:[0,1,2,3,4,5,6,7,8,9],n:'NASCET法。≥50%有意/≥70%高度'},
+ {k:'ICA-PSV(右)',g:'neck',u:'cm/s',cols:[{p:100,o:[0,1,2,3,4],l:'百'},{p:10,o:[0,1,2,3,4,5,6,7,8,9],l:'十'},{p:1,o:[0,1,2,3,4,5,6,7,8,9],l:'一'}],n:'>125で≥50%/>230で≥70%狭窄'},
+ {k:'ICA-PSV(左)',g:'neck',u:'cm/s',cols:[{p:100,o:[0,1,2,3,4],l:'百'},{p:10,o:[0,1,2,3,4,5,6,7,8,9],l:'十'},{p:1,o:[0,1,2,3,4,5,6,7,8,9],l:'一'}],n:'>125で≥50%/>230で≥70%狭窄'},
+ // ===== 腹部（代表計測） =====
+ {k:'総胆管径(CBD)',g:'abd',u:'mm',t:[0,1],hi:7,n:'>7で拡張（加齢で+1目安）'},
+ {k:'主膵管径',g:'abd',u:'mm',dec:true,t:[0,1,2,3],hi:3,n:'>3で拡張'},
+ {k:'胆嚢ポリープ径',g:'abd',u:'mm',t:[0,1,2],hi:10,n:'≥10mmで要精査'},
+ {k:'腹部大動脈径',g:'abd',u:'mm',t:[1,2,3,4,5,6],hi:30,n:'≥30でAAA/≥50で外科相談'},
+ {k:'腎長径(右)',g:'abd',u:'mm',cols:[{p:100,o:[0,1],l:'百'},{p:10,o:[0,1,2,3,4,5,6,7,8,9],l:'十'},{p:1,o:[0,1,2,3,4,5,6,7,8,9],l:'一'}],n:'正常≒100-110mm'},
+ {k:'腎長径(左)',g:'abd',u:'mm',cols:[{p:100,o:[0,1],l:'百'},{p:10,o:[0,1,2,3,4,5,6,7,8,9],l:'十'},{p:1,o:[0,1,2,3,4,5,6,7,8,9],l:'一'}],n:'正常≒100-110mm'},
+ {k:'脾長径',g:'abd',u:'mm',cols:[{p:100,o:[0,1],l:'百'},{p:10,o:[0,1,2,3,4,5,6,7,8,9],l:'十'},{p:1,o:[0,1,2,3,4,5,6,7,8,9],l:'一'}],hi:100,n:'>100mmで脾腫'}
+];
+var meas={};
+var psex='M';
+var mrefs=[];
+
+function parseChip(s){var t=s,cls='';if(s.indexOf('|n')>0){t=s.replace('|n','');cls='norm';}else if(s.indexOf('|w')>0){t=s.replace('|w','');cls='warn';}return{t:t,cls:cls};}
+
+function round1(x){return Math.round(x*10)/10;}
+var D10=[0,1,2,3,4,5,6,7,8,9];
+function digitAt(val,place){if(val==null)return null;if(place>=1)return Math.floor(val/place)%10;return Math.round((val-Math.floor(val))/place)%10;}
+function setDig(val,place,d){val=val||0;var cur=digitAt(val,place)||0;return Math.round((val-cur*place+d*place)*10)/10;}
+function colsFor(m){
+  if(m.cols)return m.cols;
+  if(m.dec)return [{p:1,o:m.t,l:'整'},{p:0.1,o:D10,l:'.'}];
+  return [{p:10,o:m.t,l:'十'},{p:1,o:D10,l:'一'}];
+}
+function buildMeasures(){
+  var host=document.getElementById('regions');
+  mrefs=[];
+  var GRP=[{g:'heart',title:'計測値（心エコー）',sex:true},{g:'neck',title:'計測値（頸動脈）'},{g:'abd',title:'計測値（腹部）'}];
+  GRP.forEach(function(grp){
+    var ms=MEASURES.filter(function(m){return (m.g||'heart')===grp.g;});
+    if(!ms.length)return;
+    var card=document.createElement('div');card.className='region measures';card.dataset.g=grp.g;
+    var h=document.createElement('h3');h.textContent=grp.title+'（クリックで1刻み・キーボード不要）';card.appendChild(h);
+    if(grp.sex){
+      var sx=document.createElement('div');sx.className='mrow';
+      var sxl=document.createElement('span');sxl.className='mlabel';sxl.textContent='性別';sx.appendChild(sxl);
+      var sb=document.createElement('span');sb.className='mdigits';
+      ['M','F'].forEach(function(s){
+        var c=document.createElement('span');c.className='mchip'+(s===psex?' on':'');c.textContent=(s==='M'?'♂ 男':'♀ 女');c.dataset.s=s;
+        c.onclick=function(){psex=s;document.querySelectorAll('.mchip[data-s]').forEach(function(x){x.classList.toggle('on',x.dataset.s===psex);});mrefs.forEach(function(f){f();});render();};
+        sb.appendChild(c);
+      });
+      sx.appendChild(sb);
+      var sxn=document.createElement('span');sxn.className='mhint';sxn.textContent='※正常値が男女で異なる項目に反映';sx.appendChild(sxn);
+      card.appendChild(sx);
+    }
+    ms.forEach(function(m){
+      var row=document.createElement('div');row.className='mrow';
+      var lab=document.createElement('span');lab.className='mlabel';lab.textContent=m.k;row.appendChild(lab);
+      var ro=document.createElement('span');ro.className='mreadout';ro.textContent='–';row.appendChild(ro);
+      var colEls=[];
+      function isBad(v){
+        var hi=(m.hiM!=null)?(psex==='F'?m.hiF:m.hiM):(m.hi!=null?m.hi:null);
+        var lo=(m.loM!=null)?(psex==='F'?m.loF:m.loM):(m.lo!=null?m.lo:null);
+        return (hi!=null&&v>hi)||(lo!=null&&v<lo);
+      }
+      function refresh(){
+        var cur=meas[m.k];
+        ro.textContent=(cur==null?'–':(m.dec?cur.toFixed(1):cur));
+        ro.classList.toggle('bad',cur!=null&&isBad(cur));
+        colEls.forEach(function(ce){ce.wrap.querySelectorAll('.mchip').forEach(function(x){x.classList.toggle('on',cur!=null&&parseInt(x.dataset.d,10)===digitAt(cur,ce.p));});});
+      }
+      mrefs.push(refresh);
+      colsFor(m).forEach(function(col){
+        var wrap=document.createElement('span');wrap.className='mdigits';
+        var b=document.createElement('b');b.textContent=col.l;wrap.appendChild(b);
+        col.o.forEach(function(d){var c=document.createElement('span');c.className='mchip';c.textContent=d;c.dataset.d=d;c.onclick=function(){meas[m.k]=setDig(meas[m.k],col.p,d);refresh();render();};wrap.appendChild(c);});
+        row.appendChild(wrap);
+        colEls.push({p:col.p,wrap:wrap});
+      });
+      if(m.u){var u=document.createElement('span');u.className='munit';u.textContent=m.u;row.appendChild(u);}
+      var clr=document.createElement('span');clr.className='mclear';clr.textContent='✕';clr.title='クリア';clr.onclick=function(){delete meas[m.k];refresh();render();};row.appendChild(clr);
+      if(m.n){var hn=document.createElement('span');hn.className='mhint';hn.textContent=m.n;row.appendChild(hn);}
+      card.appendChild(row);
+    });
+    host.appendChild(card);
+  });
+}
+
+// 自動評価（ガイドライン式）: AS重症度 / 推定PASP / 拡張能4変数
+function autoEval(){
+  var a=[];
+  if(meas['TRPG']!=null){
+    var rap=null,e=meas['IVC(呼気)'],iv=meas['IVC(吸気)'];
+    if(e!=null){
+      var col=(iv!=null&&e>0)?((e-iv)/e):null;
+      if(e<=21&&col!=null&&col>0.5)rap=3; else if(e>21&&col!=null&&col<0.5)rap=15; else rap=8;
+    }
+    if(rap!=null)a.push('推定PASP ≈ '+(meas['TRPG']+rap)+' mmHg（TRPG'+meas['TRPG']+'＋推定RAP'+rap+'）');
+  }
+  var asg=null;
+  if(meas['AV Vmax']!=null){var v=meas['AV Vmax'];asg=(v<2.5?'大動脈弁硬化':v<3?'AS 軽度':v<4?'AS 中等度':v<5?'AS 高度':'AS 超高度');}
+  else if(meas['AV平均PG']!=null){var p=meas['AV平均PG'];asg=(p<20?'AS 軽度':p<40?'AS 中等度':p<60?'AS 高度':'AS 超高度');}
+  else if(meas['AVA']!=null){var av=meas['AVA'];asg=(av>1.5?'AS 軽度':av>=1?'AS 中等度':av>0.6?'AS 高度':'AS 超高度');}
+  if(asg)a.push('AS重症度 ≈ '+asg);
+  var tot=0,pos=0;
+  if(meas['E/e′']!=null){tot++;if(meas['E/e′']>14)pos++;}
+  if(meas['e′中隔']!=null||meas['e′側壁']!=null){tot++;var eb=false;if(meas['e′中隔']!=null&&meas['e′中隔']<7)eb=true;if(meas['e′側壁']!=null&&meas['e′側壁']<10)eb=true;if(eb)pos++;}
+  if(meas['LAVi']!=null){tot++;if(meas['LAVi']>34)pos++;}
+  if(meas['TRPG']!=null){tot++;if(Math.sqrt(meas['TRPG']/4)>2.8)pos++;}
+  if(tot>=3){var r=pos/tot;a.push('拡張能 '+(r>0.5?'異常（左房圧上昇示唆）':(r===0.5?'判定保留':'正常'))+'（'+pos+'/'+tot+'陽性）');}
+  ['右','左'].forEach(function(s){
+    var psv=meas['ICA-PSV('+s+')'],pc=meas['%狭窄('+s+')'],g=null;
+    if(psv!=null){g=(psv>230?'≥70%（高度）':psv>125?'50-69%（中等度）':'<50%');}
+    else if(pc!=null){g=(pc>=70?'≥70%（高度）':pc>=50?'50-69%（中等度）':'<50%');}
+    if(g)a.push('頸動脈狭窄('+s+') ≈ '+g);
+  });
+  return a;
+}
+
+function build(){
+  var host=document.getElementById('regions');
+  buildMeasures();
+  REGIONS.forEach(function(r,idx){
+    sel[r.n]=new Set();ft[r.n]='';
+    var div=document.createElement('div');div.className='region';div.dataset.g=r.g;div.dataset.i=idx;
+    var h=document.createElement('h3');h.textContent=r.n;div.appendChild(h);
+    var cw=document.createElement('div');cw.className='chips';
+    r.c.forEach(function(cs){
+      var p=parseChip(cs);
+      var b=document.createElement('span');b.className='chip '+p.cls;b.textContent=p.t;
+      b.onclick=function(){if(sel[r.n].has(p.t)){sel[r.n].delete(p.t);b.classList.remove('on');}else{sel[r.n].add(p.t);b.classList.add('on');}render();};
+      cw.appendChild(b);
+    });
+    div.appendChild(cw);
+    var inp=document.createElement('input');inp.className='ftext';inp.placeholder='補足（サイズ・左右・S区域・mm 等）';
+    inp.oninput=function(){ft[r.n]=inp.value;render();};
+    div.appendChild(inp);
+    host.appendChild(div);
+  });
+  showSet('abd');
+}
+
+var KIND_MAP={abd:'腹部超音波',neck:'頚部超音波',chest:'胸部超音波',heart:'経胸壁心エコー',soft:'体表超音波',all:'超音波検査'};
+function showSet(key){
+  var gs=SETS[key]||['abd','neck','chest','heart','soft'];
+  document.querySelectorAll('.region').forEach(function(d){
+    d.classList.toggle('hidden', gs.indexOf(d.dataset.g)<0);
+  });
+  if(KIND_MAP[key]){document.getElementById('kind').value=KIND_MAP[key];render();}
+}
+
+function render(){
+  var lines=[],kind=document.getElementById('kind').value.trim(),date=document.getElementById('date').value,clin=document.getElementById('clin').value.trim(),imp=document.getElementById('imp').value.trim();
+  var head=(kind||'超音波検査')+' 所見';if(date)head+=' ('+date+')';
+  lines.push(head);
+  if(clin)lines.push('【目的・臨床情報】'+clin);
+  var ml=[];MEASURES.forEach(function(m){if(meas[m.k]!=null)ml.push(m.k+' '+(m.dec?meas[m.k].toFixed(1):meas[m.k])+(m.u||''));});
+  if(ml.length)lines.push('【計測】'+ml.join(' / '));
+  var auto=autoEval();
+  auto.forEach(function(x){lines.push('【自動】'+x);});
+  lines.push('');
+  var any=ml.length>0||auto.length>0;
+  REGIONS.forEach(function(r){
+    var items=Array.from(sel[r.n]),f=(ft[r.n]||'').trim();
+    if(items.length===0&&!f)return;
+    any=true;
+    var body=items.join('、');if(f)body+=(body?' ／ ':'')+f;
+    lines.push('■'+r.n+'：'+body);
+  });
+  if(imp){lines.push('');lines.push('【インプレッション】');lines.push(imp);}
+  if(!any&&!imp){document.getElementById('out').value='';return;}
+  document.getElementById('out').value=lines.join('\n');
+}
+
+function resetAll(){
+  if(!confirm('入力内容をすべてクリアします。本当によろしいですか？'))return;
+  document.querySelectorAll('.chip.on').forEach(function(c){c.classList.remove('on');});
+  document.querySelectorAll('.mchip.on').forEach(function(c){c.classList.remove('on');});
+  document.querySelectorAll('.mreadout').forEach(function(r){r.textContent='–';r.classList.remove('bad');});
+  document.querySelectorAll('.mchip[data-s]').forEach(function(c){if(c.dataset.s===psex)c.classList.add('on');});
+  meas={};
+  document.querySelectorAll('.ftext').forEach(function(i){i.value='';});
+  REGIONS.forEach(function(r){sel[r.n]=new Set();ft[r.n]='';});
+  document.getElementById('imp').value='';document.getElementById('out').value='';
+}
+function copyOut(){var txt=document.getElementById('out').value;var done=function(){var b=document.querySelector('.b-copy'),o=b.textContent;b.textContent='コピー済 ✓';setTimeout(function(){b.textContent=o;},1400);};function fb(){try{var ta=document.createElement('textarea');ta.value=txt;ta.style.position='fixed';ta.style.opacity='0';document.body.appendChild(ta);ta.select();document.execCommand('copy');document.body.removeChild(ta);done();}catch(e){alert('コピーに失敗しました。本文を選択して手動でコピーしてください。');}}if(navigator.clipboard&&navigator.clipboard.writeText){navigator.clipboard.writeText(txt).then(done).catch(fb);}else{fb();}}
+
+['kind','date','clin','imp'].forEach(function(id){document.getElementById(id).oninput=render;});
+document.getElementById('regions').innerHTML='';/*保存時に固まった静的DOMを除去してから再生成*/
+build();
+(function(){var d=new Date();document.getElementById('date').value=d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');})();
+</script>
+<footer style="max-width:1200px;margin:18px auto 0;padding:14px;font-size:11px;color:#94a3b8;line-height:1.7;border-top:1px solid #e2e8f0">
+  本ツールは超音波所見の<b>記載整形を補助する</b>ものです。診断・最終判断は医師が行ってください。<b>無保証・自己責任</b>でご利用ください。<br>
+  ※入力内容はブラウザ内で完結し、患者情報の保存・外部送信は一切行いません（オフライン動作）。
+</footer>
+
+
+</body></html>
