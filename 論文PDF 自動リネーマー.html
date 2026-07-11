@@ -1,0 +1,404 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>論文PDF 自動リネーマー</title>
+<style>
+  :root{
+    --bg:#0f1115; --panel:#171a21; --panel2:#1e222b; --border:#2b3038;
+    --text:#e7eaf0; --muted:#9aa3b2; --accent:#5b9dff; --accent2:#3a7bd5;
+    --ok:#4ade80; --warn:#fbbf24; --err:#f87171; --drop:#20304a;
+  }
+  @media (prefers-color-scheme: light){
+    :root{
+      --bg:#f5f7fa; --panel:#ffffff; --panel2:#eef1f6; --border:#d7dde6;
+      --text:#1b2330; --muted:#5b6472; --accent:#2f6bd6; --accent2:#2559b5;
+      --drop:#e4edfb;
+    }
+  }
+  *{box-sizing:border-box}
+  body{
+    margin:0; font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Helvetica Neue","Hiragino Kaku Gothic ProN",Meiryo,sans-serif;
+    background:var(--bg); color:var(--text); line-height:1.6;
+  }
+  .wrap{max-width:920px; margin:0 auto; padding:28px 20px 80px;}
+  header h1{font-size:22px; margin:0 0 4px;}
+  header p{margin:0 0 20px; color:var(--muted); font-size:14px;}
+  .drop{
+    border:2px dashed var(--border); border-radius:16px; background:var(--panel);
+    padding:44px 20px; text-align:center; transition:.15s; cursor:pointer;
+  }
+  .drop.hover{border-color:var(--accent); background:var(--drop);}
+  .drop .big{font-size:17px; font-weight:600;}
+  .drop .sub{color:var(--muted); font-size:13px; margin-top:6px;}
+  .drop svg{width:44px;height:44px;opacity:.7;margin-bottom:10px}
+  .controls{display:flex; gap:14px; flex-wrap:wrap; align-items:center; margin:18px 2px; font-size:13px; color:var(--muted);}
+  .controls label{display:flex; align-items:center; gap:6px; cursor:pointer;}
+  .controls input[type=text]{background:var(--panel2); border:1px solid var(--border); color:var(--text); border-radius:8px; padding:5px 8px; font-size:13px; width:200px;}
+  .list{margin-top:10px; display:flex; flex-direction:column; gap:10px;}
+  .card{background:var(--panel); border:1px solid var(--border); border-radius:12px; padding:14px 16px;}
+  .card .row1{display:flex; align-items:center; gap:10px; flex-wrap:wrap;}
+  .dot{width:9px;height:9px;border-radius:50%;flex:0 0 auto;background:var(--muted)}
+  .dot.ok{background:var(--ok)} .dot.warn{background:var(--warn)} .dot.err{background:var(--err)} .dot.work{background:var(--accent)}
+  .orig{color:var(--muted); font-size:12px; word-break:break-all;}
+  .title{font-weight:600; font-size:15px; margin:8px 0 2px; word-break:break-word;}
+  .meta{font-size:12px; color:var(--muted);}
+  .method{font-size:11px; padding:2px 7px; border-radius:20px; background:var(--panel2); border:1px solid var(--border); color:var(--muted);}
+  .newname{font-size:13px; margin-top:8px; display:flex; align-items:center; gap:8px; flex-wrap:wrap;}
+  .newname input{flex:1; min-width:220px; background:var(--panel2); border:1px solid var(--border); color:var(--text); border-radius:8px; padding:6px 9px; font-size:13px;}
+  .btn{border:none; border-radius:8px; padding:7px 14px; font-size:13px; font-weight:600; cursor:pointer; background:var(--accent); color:#fff;}
+  .btn:hover{background:var(--accent2)}
+  .btn.ghost{background:transparent; color:var(--accent); border:1px solid var(--border);}
+  .btn:disabled{opacity:.5; cursor:not-allowed;}
+  .bar{display:flex; gap:10px; margin:16px 2px 0; flex-wrap:wrap;}
+  footer{margin-top:34px; color:var(--muted); font-size:12px; text-align:center;}
+  a{color:var(--accent)}
+  .hint{font-size:12px;color:var(--muted);margin-top:6px}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <h1>論文PDF 自動リネーマー</h1>
+    <p>PubMedなどの論文PDFをドロップすると、タイトルを自動認識してファイル名を付け替えます。すべてブラウザ内で動作し、PDFがどこかにアップロードされることはありません。</p>
+  </header>
+
+  <div class="drop" id="drop">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M12 16V4m0 0l-4 4m4-4l4 4" stroke-linecap="round" stroke-linejoin="round"/><path d="M4 16v2a2 2 0 002 2h12a2 2 0 002-2v-2" stroke-linecap="round"/></svg>
+    <div class="big">PDFをここにドロップ</div>
+    <div class="sub">またはクリックしてファイルを選択（複数可）</div>
+    <input type="file" id="file" accept="application/pdf" multiple hidden>
+  </div>
+
+  <div class="controls">
+    <label><input type="checkbox" id="useOnline" checked> オンライン照合（CrossRef / PubMed）を使う</label>
+    <label>連絡先メール（推奨）:<input type="text" id="mailto" placeholder="you@example.com"></label>
+  </div>
+  <div class="hint">オンライン照合はPDF内のDOI/PMIDを使って正確なタイトルを取得します。見つからない場合はPDFの本文レイアウトから推定します。</div>
+
+  <div class="list" id="list"></div>
+
+  <div class="bar" id="bar" style="display:none">
+    <button class="btn" id="dlAll">すべてダウンロード</button>
+    <button class="btn ghost" id="clear">クリア</button>
+  </div>
+
+  <footer>DOI→CrossRef、PMID→NCBI PubMedで照合。フォールバックは本文フォントサイズによる推定です。</footer>
+</div>
+
+<script>
+/* ---------- pdf.js を複数CDNフォールバックで読み込み ---------- */
+const PDFJS_SOURCES = [
+  {lib:"https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js",
+   worker:"https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js"},
+  {lib:"https://cdn.jsdelivr.net/npm/pdfjs-dist@3.11.174/build/pdf.min.js",
+   worker:"https://cdn.jsdelivr.net/npm/pdfjs-dist@3.11.174/build/pdf.worker.min.js"},
+  {lib:"https://unpkg.com/pdfjs-dist@3.11.174/build/pdf.min.js",
+   worker:"https://unpkg.com/pdfjs-dist@3.11.174/build/pdf.worker.min.js"},
+];
+function loadScript(src){
+  return new Promise((res,rej)=>{
+    const s=document.createElement("script");
+    s.src=src; s.onload=res; s.onerror=()=>rej(new Error("load fail: "+src));
+    document.head.appendChild(s);
+  });
+}
+async function ensurePdfjs(){
+  for(const src of PDFJS_SOURCES){
+    try{
+      await loadScript(src.lib);
+      if(window.pdfjsLib){
+        pdfjsLib.GlobalWorkerOptions.workerSrc = src.worker;
+        return true;
+      }
+    }catch(e){ /* 次のCDNへ */ }
+  }
+  return false;
+}
+
+const $ = s => document.querySelector(s);
+const listEl = $("#list"), barEl = $("#bar");
+let items = []; // {id, file, blobUrl, title, method, meta, newName}
+let idc = 0;
+
+/* ---------- ファイル名サニタイズ ---------- */
+function sanitize(name){
+  if(!name) return "";
+  let s = name.replace(/\s+/g," ").trim();
+  // OSで使えない文字を全角/近似に置換
+  s = s.replace(/[\/\\]/g,"-")
+       .replace(/[:]/g,"：")
+       .replace(/[*?"<>|]/g,"")
+       .replace(/[\r\n\t]/g," ")
+       .replace(/\.+$/,""); // 末尾ピリオド除去
+  s = s.replace(/\s+/g," ").trim();
+  if(s.length > 180) s = s.slice(0,180).trim();
+  return s;
+}
+
+/* ---------- DOI / PMID 抽出 ---------- */
+function findDOI(text){
+  // 一般的なDOIパターン。Elsevier系はDOI内に括弧を含むため、対応の取れない閉じ括弧のみ除去。
+  const m = text.match(/10\.\d{4,9}\/[^\s"'<>]+/i);
+  if(!m) return null;
+  let doi = m[0].replace(/[.,;:]+$/,"");
+  while(/[)\]]$/.test(doi)){
+    const close = doi.slice(-1);
+    const open = close===")" ? "(" : "[";
+    const opens  = (doi.match(new RegExp("\\"+open,"g"))||[]).length;
+    const closes = (doi.match(new RegExp("\\"+close,"g"))||[]).length;
+    if(closes > opens){ doi = doi.slice(0,-1).replace(/[.,;:]+$/,""); }
+    else break;
+  }
+  return doi;
+}
+function findPMID(text){
+  const m = text.match(/PMID:\s*(\d{6,9})/i);
+  return m ? m[1] : null;
+}
+
+/* ---------- オンライン照合 ---------- */
+async function fetchCrossref(doi, mailto){
+  let url = "https://api.crossref.org/works/" + encodeURIComponent(doi);
+  if(mailto) url += "?mailto=" + encodeURIComponent(mailto);
+  const r = await fetch(url, {headers:{"Accept":"application/json"}});
+  if(!r.ok) throw new Error("crossref "+r.status);
+  const j = await r.json();
+  const m = j.message;
+  let title = Array.isArray(m.title) ? m.title[0] : m.title;
+  if(!title) throw new Error("no title");
+  let author = "";
+  if(m.author && m.author[0]) author = m.author[0].family || m.author[0].name || "";
+  let year = "";
+  const dp = (m["published-print"]||m["published-online"]||m["issued"]||{})["date-parts"];
+  if(dp && dp[0]) year = dp[0][0];
+  return {title:title.trim(), author, year, source:"CrossRef", doi};
+}
+async function fetchPubmed(pmid){
+  const url = "https://eutils.ncbi.nlm.nih.gov/entrez/eutils/esummary.fcgi?db=pubmed&retmode=json&id="+encodeURIComponent(pmid);
+  const r = await fetch(url);
+  if(!r.ok) throw new Error("pubmed "+r.status);
+  const j = await r.json();
+  const rec = j.result && j.result[pmid];
+  if(!rec || !rec.title) throw new Error("no record");
+  let title = rec.title.replace(/\.$/,"").replace(/<[^>]+>/g,"");
+  let author = rec.sortfirstauthor || (rec.authors&&rec.authors[0]&&rec.authors[0].name) || "";
+  author = author.split(" ")[0];
+  let year = (rec.pubdate||"").match(/\d{4}/); year = year?year[0]:"";
+  return {title:title.trim(), author, year, source:"PubMed", pmid};
+}
+
+/* ---------- レイアウト推定（フォールバック） ---------- */
+async function guessTitleByLayout(pdf){
+  const page = await pdf.getPage(1);
+  const vp = page.getViewport({scale:1});
+  const tc = await page.getTextContent();
+  // 行にまとめる: yが近いものを同一行に
+  const lines = {};
+  for(const it of tc.items){
+    if(!it.str.trim()) continue;
+    const y = Math.round(it.transform[5]);
+    const h = Math.hypot(it.transform[2], it.transform[3]); // フォントサイズ近似
+    const key = y;
+    if(!lines[key]) lines[key] = {y, size:h, parts:[], top:vp.height - y};
+    lines[key].parts.push(it.str);
+    lines[key].size = Math.max(lines[key].size, h);
+  }
+  let arr = Object.values(lines).map(l=>({
+    text:l.parts.join(" ").replace(/\s+/g," ").trim(),
+    size:l.size, top:l.top, y:l.y
+  })).filter(l=>l.text.length>0);
+  if(!arr.length) return null;
+
+  // 上半分にあり、大きいフォントの行を候補に
+  const maxSize = Math.max(...arr.map(a=>a.size));
+  // タイトルらしさ: 大きめフォント、上部、英字が多い、短すぎない
+  const cand = arr.filter(a=>{
+    if(a.size < maxSize*0.85) return false;
+    if(a.top > vp.height*0.6) return false;
+    const t = a.text;
+    if(t.length < 12) return false;
+    if(/^(abstract|introduction|references|doi|http|www|©|copyright|received|accepted|volume|vol\.)/i.test(t)) return false;
+    if((t.match(/\d/g)||[]).length > t.length*0.5) return false;
+    return true;
+  }).sort((a,b)=> (b.size-a.size) || (a.top-b.top));
+
+  if(!cand.length) return null;
+
+  // 同じ大きさの連続する行（上から順）を結合してタイトルにする
+  const target = cand[0];
+  const sameSize = arr.filter(a=>Math.abs(a.size-target.size) < 0.5 && a.top <= vp.height*0.6)
+                      .sort((a,b)=>a.top-b.top);
+  // targetの周辺（隣接行）だけ結合
+  let title = [];
+  let prevTop = null;
+  for(const l of sameSize){
+    if(prevTop===null){ if(l.y!==target.y && Math.abs(l.top-target.top)>target.size*2.5) continue; }
+    if(prevTop!==null && (l.top - prevTop) > target.size*2.2) break;
+    title.push(l.text); prevTop = l.top;
+    if(title.join(" ").length > 250) break;
+  }
+  let out = title.join(" ").replace(/\s+/g," ").trim();
+  if(out.length < 12) out = target.text;
+  return out || null;
+}
+
+/* ---------- PDFテキスト（先頭数ページ） ---------- */
+async function firstPagesText(pdf, n=2){
+  let text = "";
+  const pages = Math.min(n, pdf.numPages);
+  for(let i=1;i<=pages;i++){
+    const p = await pdf.getPage(i);
+    const c = await p.getTextContent();
+    text += c.items.map(it=>it.str).join(" ") + "\n";
+  }
+  return text;
+}
+
+/* ---------- メイン処理 ---------- */
+async function processFile(file){
+  const id = ++idc;
+  const blobUrl = URL.createObjectURL(file);
+  const item = {id, file, blobUrl, title:"", method:"", meta:"", newName:""};
+  items.push(item);
+  render();
+  update(id, {method:"読み込み中…", dot:"work"});
+
+  try{
+    const buf = await file.arrayBuffer();
+    const pdf = await pdfjsLib.getDocument({data:buf}).promise;
+    const text = await firstPagesText(pdf, 2);
+
+    const online = $("#useOnline").checked;
+    const mailto = $("#mailto").value.trim();
+    let result = null, method = "", meta = "";
+
+    if(online){
+      const doi = findDOI(text);
+      const pmid = findPMID(text);
+      if(doi){
+        try{ result = await fetchCrossref(doi, mailto); method = "DOI照合 (CrossRef)"; }catch(e){}
+      }
+      if(!result && pmid){
+        try{ result = await fetchPubmed(pmid); method = "PMID照合 (PubMed)"; }catch(e){}
+      }
+      // DOIが本文になくCrossRefへ書誌検索…は精度低いためスキップ
+    }
+
+    let title;
+    if(result){
+      title = result.title;
+      meta = [result.author, result.year, result.source].filter(Boolean).join(" · ");
+    }else{
+      title = await guessTitleByLayout(pdf);
+      method = online ? "レイアウト推定（DOI未検出）" : "レイアウト推定";
+      meta = "本文フォントから推定";
+    }
+
+    if(!title){
+      update(id, {title:"(タイトルを認識できませんでした)", method:"失敗", dot:"err", meta:"手動で入力してください", newName:file.name.replace(/\.pdf$/i,"")});
+      return;
+    }
+
+    const clean = sanitize(title);
+    update(id, {title, method, meta, dot:"ok", newName:clean});
+  }catch(err){
+    update(id, {title:"(処理エラー)", method:"エラー", dot:"err", meta:String(err.message||err), newName:file.name.replace(/\.pdf$/i,"")});
+  }
+}
+
+/* ---------- 描画 ---------- */
+function update(id, patch){
+  const it = items.find(x=>x.id===id); if(!it) return;
+  Object.assign(it, patch);
+  render();
+}
+function render(){
+  barEl.style.display = items.length ? "flex" : "none";
+  listEl.innerHTML = "";
+  for(const it of items){
+    const card = document.createElement("div"); card.className="card";
+    const dot = it.dot||"work";
+    card.innerHTML = `
+      <div class="row1">
+        <span class="dot ${dot}"></span>
+        <span class="orig">元: ${escapeHtml(it.file.name)}</span>
+        ${it.method?`<span class="method">${escapeHtml(it.method)}</span>`:""}
+      </div>
+      ${it.title?`<div class="title">${escapeHtml(it.title)}</div>`:""}
+      ${it.meta?`<div class="meta">${escapeHtml(it.meta)}</div>`:""}
+      <div class="newname">
+        <input type="text" value="${escapeAttr(it.newName||"")}" data-id="${it.id}" ${it.newName?"":"disabled"}>
+        <span class="meta">.pdf</span>
+        <button class="btn" data-dl="${it.id}" ${it.newName?"":"disabled"}>保存</button>
+      </div>`;
+    listEl.appendChild(card);
+  }
+  listEl.querySelectorAll("input[data-id]").forEach(inp=>{
+    inp.addEventListener("input", e=>{
+      const it = items.find(x=>x.id==e.target.dataset.id); if(it) it.newName = e.target.value;
+    });
+  });
+  listEl.querySelectorAll("button[data-dl]").forEach(b=>{
+    b.addEventListener("click", ()=>download(+b.dataset.dl));
+  });
+}
+function download(id){
+  const it = items.find(x=>x.id===id); if(!it) return;
+  let name = sanitize(it.newName) || it.file.name.replace(/\.pdf$/i,"");
+  const a = document.createElement("a");
+  a.href = it.blobUrl; a.download = name + ".pdf";
+  document.body.appendChild(a); a.click(); a.remove();
+}
+function escapeHtml(s){return String(s).replace(/[&<>]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;"}[c]));}
+function escapeAttr(s){return String(s).replace(/"/g,"&quot;").replace(/[&<>]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;"}[c]));}
+
+/* ---------- イベント ---------- */
+const drop = $("#drop"), fileInput = $("#file");
+drop.addEventListener("click", ()=>fileInput.click());
+fileInput.addEventListener("change", e=>{ handleFiles(e.target.files); fileInput.value=""; });
+["dragenter","dragover"].forEach(ev=>drop.addEventListener(ev,e=>{e.preventDefault();drop.classList.add("hover");}));
+["dragleave","drop"].forEach(ev=>drop.addEventListener(ev,e=>{e.preventDefault();drop.classList.remove("hover");}));
+drop.addEventListener("drop", e=>{ handleFiles(e.dataTransfer.files); });
+window.addEventListener("dragover", e=>e.preventDefault());
+window.addEventListener("drop", e=>e.preventDefault());
+
+let pdfjsReady = false;
+function handleFiles(fl){
+  const pdfs = [...fl].filter(f=>/\.pdf$/i.test(f.name) || f.type==="application/pdf");
+  if(!pdfs.length) return;
+  if(!pdfjsReady){
+    alert("PDF処理ライブラリ(pdf.js)を読み込めませんでした。インターネット接続を確認して、ページを再読み込みしてください。");
+    return;
+  }
+  pdfs.forEach(processFile);
+}
+
+$("#dlAll").addEventListener("click", ()=>{
+  const ready = items.filter(it=>it.newName);
+  ready.forEach((it,i)=> setTimeout(()=>download(it.id), i*400)); // ブラウザの連続DL制限対策
+});
+$("#clear").addEventListener("click", ()=>{
+  items.forEach(it=>URL.revokeObjectURL(it.blobUrl));
+  items = []; render();
+});
+
+/* ---------- 起動 ---------- */
+(async ()=>{
+  const big = drop.querySelector(".big");
+  const sub = drop.querySelector(".sub");
+  big.textContent = "PDF処理ライブラリを読み込み中…";
+  pdfjsReady = await ensurePdfjs();
+  if(pdfjsReady){
+    big.textContent = "PDFをここにドロップ";
+    sub.textContent = "またはクリックしてファイルを選択（複数可）";
+  }else{
+    big.textContent = "読み込みに失敗しました";
+    sub.textContent = "インターネット接続を確認し、ページを再読み込みしてください。";
+    drop.style.borderColor = "var(--err)";
+  }
+})();
+</script>
+</body>
+</html>
