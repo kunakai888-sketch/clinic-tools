@@ -362,6 +362,14 @@ footer{margin-top:26px;font-size:.66rem;color:var(--muted);line-height:1.7}
     </div>
     <div id="key-test-result"></div>
     <p style="margin-top:6px">キーがあると米国株はFinnhubから直接取得（中継サーバー不要・ほぼリアルタイム）。日本株・先物・指数は引き続きYahoo経由です。キーはこのブラウザ内にのみ保存され、URLやブックマークには含まれません。</p>
+    <label class="key-label">📦 引っ越し（機種変更・別端末への設定コピー）</label>
+    <div class="key-row">
+      <button id="export-url" type="button">引っ越し用URLをコピー</button>
+      <label style="font-size:.74rem;color:var(--ink-2);display:flex;align-items:center;gap:5px;cursor:pointer">
+        <input type="checkbox" id="export-key"> APIキーも含める
+      </label>
+    </div>
+    <p style="margin-top:6px">コピーしたURLを新しい端末のブラウザで開くだけで、銘柄リスト（＋チェック時はAPIキー）が取り込まれます。メールやLINEで自分宛てに送ると簡単です。キー入りURLは他人に送らないでください。</p>
     <details id="bulk-edit">
       <summary>上級者向け: テキストで一括編集・決算日の手動指定</summary>
       <p>カンマ/改行区切り。日本株は「コード.T」（例: 8035.T）。決算日の上書きは「MU@2026-09-24」の形式。</p>
@@ -377,7 +385,7 @@ footer{margin-top:26px;font-size:.66rem;color:var(--muted);line-height:1.7}
 <script>
 "use strict";
 /* ================= 設定 ================= */
-const APP_VER = "v14";   // 更新のたびに数字が上がります。サイトの表示と一致するか確認に使ってください
+const APP_VER = "v15";   // 更新のたびに数字が上がります。サイトの表示と一致するか確認に使ってください
 const MOCK = new URLSearchParams(location.search).has("mock");
 
 const NAMES = {
@@ -1277,6 +1285,20 @@ $("#key-test").addEventListener("click", async ()=>{
       : `<span class="down-t">✕ 決算カレンダー: 取得不可（${r2.status}）</span>`);
   }catch(e){ lines.push(`<span class="down-t">✕ 決算カレンダー: 通信エラー</span>`); }
   out.innerHTML = lines.join("<br>");
+});
+$("#export-url").addEventListener("click", async ()=>{
+  const btn = $("#export-url");
+  const parts = wl.map(s => manualEarn[s] ? `${s}@${manualEarn[s]}` : s).join(",");
+  let url = location.href.split("#")[0].split("?")[0] + "#h=" + encodeURIComponent(parts);
+  if($("#export-key").checked && fhKey) url += "&k=" + fhKey;
+  try{
+    await navigator.clipboard.writeText(url);
+    btn.textContent = "✓ コピーしました";
+  }catch(e){
+    prompt("このURLをコピーしてください:", url);
+    btn.textContent = "↑ 手動でコピー";
+  }
+  setTimeout(()=>{ btn.textContent = "引っ越し用URLをコピー"; }, 2500);
 });
 $("#modal-cancel").addEventListener("click", ()=> $("#modal-bg").style.display="none");
 $("#modal-bg").addEventListener("click", e=>{ if(e.target.id==="modal-bg") $("#modal-bg").style.display="none"; });
