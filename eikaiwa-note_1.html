@@ -1,0 +1,1250 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>英会話ノート — 会話ログから育てる自分だけの単語帳</title>
+<style>
+:root{
+  --page:#f9f9f7; --surface:#fcfcfb; --ink:#0b0b0b; --ink2:#52514e; --muted:#898781;
+  --grid:#e1e0d9; --axis:#c3c2b7; --border:rgba(11,11,11,.10);
+  --s1:#2a78d6; --s1-soft:rgba(42,120,214,.10); --s2:#1baf7a;
+  --good:#0ca30c; --good-text:#006300; --warn:#fab219; --crit:#d03b3b;
+}
+@media (prefers-color-scheme: dark){
+  :root{
+    --page:#0d0d0d; --surface:#1a1a19; --ink:#ffffff; --ink2:#c3c2b7; --muted:#898781;
+    --grid:#2c2c2a; --axis:#383835; --border:rgba(255,255,255,.10);
+    --s1:#3987e5; --s1-soft:rgba(57,135,229,.14); --s2:#199e70;
+    --good:#0ca30c; --good-text:#0ca30c;
+  }
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:system-ui,-apple-system,"Segoe UI","Hiragino Sans","Noto Sans JP",sans-serif;
+  background:var(--page);color:var(--ink);line-height:1.6;font-size:15px}
+.wrap{max-width:880px;margin:0 auto;padding:20px 16px 80px}
+header.app{padding:8px 0 16px}
+header.app h1{font-size:22px;font-weight:700;letter-spacing:.01em}
+header.app p{color:var(--ink2);font-size:13px;margin-top:2px}
+nav.tabs{display:flex;gap:4px;border-bottom:1px solid var(--grid);margin-bottom:20px;overflow-x:auto}
+nav.tabs button{appearance:none;border:none;background:none;color:var(--ink2);font-size:14px;font-weight:600;
+  padding:10px 14px;cursor:pointer;border-bottom:2px solid transparent;white-space:nowrap;font-family:inherit}
+nav.tabs button.active{color:var(--ink);border-bottom-color:var(--s1)}
+nav.tabs button:hover{color:var(--ink)}
+.tabpane{display:none}
+.tabpane.active{display:block}
+.card{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:18px;margin-bottom:16px}
+.card h2{font-size:15px;font-weight:700;margin-bottom:10px}
+.card h2 .sub{font-weight:400;color:var(--muted);font-size:12px;margin-left:8px}
+textarea#pasteBox{width:100%;min-height:180px;border:1px solid var(--axis);border-radius:8px;padding:12px;
+  font-family:inherit;font-size:14px;background:var(--page);color:var(--ink);resize:vertical}
+textarea#pasteBox:focus{outline:2px solid var(--s1);outline-offset:-1px}
+input[type=text],select{border:1px solid var(--axis);border-radius:8px;padding:8px 10px;font-family:inherit;
+  font-size:14px;background:var(--page);color:var(--ink)}
+input[type=text]:focus{outline:2px solid var(--s1);outline-offset:-1px}
+.btn{appearance:none;border:1px solid var(--axis);background:var(--surface);color:var(--ink);border-radius:8px;
+  padding:9px 16px;font-size:14px;font-weight:600;cursor:pointer;font-family:inherit}
+.btn:hover{border-color:var(--muted)}
+.btn.primary{background:var(--s1);border-color:var(--s1);color:#fff}
+.btn.primary:hover{filter:brightness(1.08)}
+.btn.danger{color:var(--crit);border-color:var(--crit)}
+.btn.small{padding:5px 10px;font-size:12.5px}
+.btn:disabled{opacity:.45;cursor:default}
+.row{display:flex;gap:10px;align-items:center;flex-wrap:wrap}
+.note{color:var(--ink2);font-size:12.5px}
+.hint{color:var(--muted);font-size:12px;margin-top:6px}
+/* import preview */
+#previewList{margin-top:14px;display:flex;flex-direction:column;gap:6px;max-height:340px;overflow-y:auto}
+.utt{display:flex;gap:10px;align-items:flex-start;padding:8px 10px;border:1px solid var(--border);border-radius:8px}
+.utt .chip{flex:0 0 auto;border:none;border-radius:999px;font-size:11.5px;font-weight:700;padding:3px 10px;
+  cursor:pointer;font-family:inherit;min-width:52px}
+.utt.self{background:var(--s1-soft)}
+.utt.self .chip{background:var(--s1);color:#fff}
+.utt.other .chip{background:var(--grid);color:var(--ink2)}
+.utt.skip{opacity:.45}
+.utt.skip .chip{background:none;color:var(--muted);outline:1px dashed var(--muted)}
+.utt .txt{font-size:13.5px;word-break:break-word}
+.utt .lbl{color:var(--muted);font-size:11px;display:block}
+.banner{border-radius:8px;padding:10px 12px;font-size:13px;margin-top:12px}
+.banner.ok{background:var(--s1-soft);color:var(--ink)}
+.banner.warn2{background:rgba(250,178,25,.14);color:var(--ink)}
+/* vocab list */
+.toolbar{display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin-bottom:12px}
+.toolbar input[type=text]{flex:1;min-width:140px}
+.seg{display:inline-flex;border:1px solid var(--axis);border-radius:8px;overflow:hidden}
+.seg button{appearance:none;border:none;background:none;padding:7px 14px;font-size:13px;font-weight:600;
+  color:var(--ink2);cursor:pointer;font-family:inherit}
+.seg button.active{background:var(--s1);color:#fff}
+.vitem{padding:12px 4px;border-bottom:1px solid var(--grid)}
+.vitem:last-child{border-bottom:none}
+.vhead{display:flex;align-items:baseline;gap:10px;flex-wrap:wrap}
+.vword{font-size:16px;font-weight:700}
+.vcount{font-size:12px;color:var(--ink2);background:var(--grid);border-radius:999px;padding:1px 9px;font-variant-numeric:tabular-nums}
+.vnew{font-size:11px;color:var(--good-text);font-weight:700}
+.vstar{margin-left:auto;appearance:none;border:none;background:none;cursor:pointer;font-size:16px;color:var(--axis);font-family:inherit}
+.vstar.on{color:var(--warn)}
+.vex{margin-top:4px;color:var(--ink2);font-size:13px}
+.vex em{font-style:normal;font-weight:700;color:var(--ink)}
+.vnote{margin-top:6px;display:flex;gap:6px;align-items:center}
+.vnote input{flex:1;font-size:13px;padding:5px 9px}
+.vreph{margin-top:6px;font-size:12.5px;color:var(--ink2)}
+.vreph b{color:var(--ink)}
+.empty{color:var(--muted);text-align:center;padding:36px 0;font-size:13.5px}
+/* quiz */
+.quizcard{border:1px solid var(--border);border-radius:12px;padding:26px 20px;text-align:center;min-height:200px;
+  display:flex;flex-direction:column;justify-content:center;gap:16px}
+.qsent{font-size:17px;line-height:1.8}
+.qsent .blank{display:inline-block;min-width:70px;border-bottom:2px solid var(--s1);font-weight:700;color:var(--s1)}
+.qchoices{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.qchoices button{appearance:none;border:1px solid var(--axis);background:var(--surface);border-radius:8px;
+  padding:11px;font-size:15px;font-weight:600;cursor:pointer;color:var(--ink);font-family:inherit}
+.qchoices button:hover{border-color:var(--s1)}
+.qchoices button.correct{background:var(--good);border-color:var(--good);color:#fff}
+.qchoices button.wrong{background:var(--crit);border-color:var(--crit);color:#fff}
+.qmeta{font-size:12.5px;color:var(--muted)}
+.qanswer{font-size:22px;font-weight:700}
+.qnote{color:var(--ink2);font-size:14px}
+/* stats */
+.tiles{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:12px;margin-bottom:16px}
+.tile{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:14px 16px}
+.tile .tl{font-size:12px;color:var(--ink2)}
+.tile .tv{font-size:28px;font-weight:600;margin-top:2px}
+.tile .td{font-size:12px;margin-top:2px;color:var(--muted)}
+.tile .td.up{color:var(--good-text);font-weight:600}
+.chartbox{position:relative}
+.chartbox svg{display:block;width:100%;height:auto}
+.viztip{position:absolute;pointer-events:none;background:var(--ink);color:var(--page);border-radius:6px;
+  padding:5px 9px;font-size:12px;display:none;z-index:5;white-space:nowrap}
+.viztip b{font-size:13px}
+details.tbl{margin-top:8px}
+details.tbl summary{font-size:12px;color:var(--muted);cursor:pointer}
+details.tbl table{width:100%;border-collapse:collapse;margin-top:6px;font-size:12.5px}
+details.tbl th,details.tbl td{text-align:left;padding:4px 8px;border-bottom:1px solid var(--grid);font-variant-numeric:tabular-nums}
+details.tbl th{color:var(--muted);font-weight:600}
+.sugg{padding:12px 0;border-bottom:1px solid var(--grid)}
+.sugg:last-child{border-bottom:none}
+.sugg .sw{font-weight:700;font-size:15px}
+.sugg .sfreq{font-size:12px;color:var(--muted);margin-left:8px;font-variant-numeric:tabular-nums}
+.sugg .salt{margin-top:4px;font-size:13.5px;color:var(--ink2)}
+.sugg .salt b{color:var(--ink)}
+.sugg .stip{margin-top:2px;font-size:12px;color:var(--muted)}
+/* scramble quiz */
+.scrslots{min-height:52px;border:1.5px dashed var(--axis);border-radius:10px;padding:12px;font-size:16.5px;
+  font-weight:600;line-height:1.7;color:var(--ink)}
+.scrslots.empty2{color:var(--muted);font-weight:400;font-size:13.5px}
+.scrpool{display:flex;flex-wrap:wrap;gap:8px;justify-content:center}
+.scrpool button{appearance:none;border:1px solid var(--axis);background:var(--surface);border-radius:8px;
+  padding:8px 14px;font-size:15px;font-weight:600;cursor:pointer;color:var(--ink);font-family:inherit}
+.scrpool button:hover:not(:disabled){border-color:var(--s1)}
+.scrpool button:disabled{opacity:.22;cursor:default}
+/* syntax tab */
+.pat{padding:10px 4px;border-bottom:1px solid var(--grid)}
+.pat:last-child{border-bottom:none}
+.pat .ph{display:flex;gap:10px;align-items:baseline;flex-wrap:wrap}
+.pat .pe{font-weight:700;font-size:14.5px}
+.pat .pj{color:var(--ink2);font-size:12.5px}
+.pat .cnt{margin-left:auto;font-size:12px;color:var(--ink2);background:var(--grid);border-radius:999px;
+  padding:1px 9px;font-variant-numeric:tabular-nums;flex:0 0 auto}
+.pat.unused .pe{color:var(--ink2)}
+.pat.unused .cnt{background:none;outline:1px dashed var(--axis);color:var(--muted)}
+.pat .pex{font-size:12.5px;color:var(--muted);margin-top:2px}
+.pgroup{font-size:12px;font-weight:700;color:var(--muted);margin:14px 0 2px;letter-spacing:.04em}
+textarea#recastBox{width:100%;min-height:110px;border:1px solid var(--axis);border-radius:8px;padding:12px;
+  font-family:inherit;font-size:13.5px;background:var(--page);color:var(--ink);resize:vertical}
+textarea#recastBox:focus{outline:2px solid var(--s1);outline-offset:-1px}
+.ritem{padding:11px 4px;border-bottom:1px solid var(--grid)}
+.ritem:last-child{border-bottom:none}
+.ritem .rrow{display:flex;gap:8px;align-items:flex-start}
+.ritem .rtxt{flex:1;min-width:0}
+.ritem .ro{color:var(--muted);font-size:13px}
+.ritem .ro s{opacity:.75}
+.ritem .rf{font-size:14.5px;margin-top:1px}
+.ritem .rf mark{background:var(--s1-soft);color:var(--ink);font-weight:700;border-radius:3px;padding:0 2px}
+.ritem .rdate{font-size:11px;color:var(--muted);margin-top:2px}
+.rdel{appearance:none;border:none;background:none;color:var(--muted);cursor:pointer;font-size:14px;
+  padding:2px 6px;font-family:inherit;flex:0 0 auto}
+.rdel:hover{color:var(--crit)}
+/* data */
+.kv{display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px solid var(--grid);font-size:13.5px}
+.kv:last-child{border-bottom:none}
+.kv .v{font-variant-numeric:tabular-nums;color:var(--ink2)}
+.sesslist .kv .v{color:var(--muted);font-size:12.5px}
+footer{margin-top:30px;color:var(--muted);font-size:11.5px;text-align:center}
+@media (max-width:560px){ .qchoices{grid-template-columns:1fr} }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header class="app">
+    <h1>英会話ノート</h1>
+    <p>会話の文字起こしを貼るだけで、自分の使った単語・フレーズが積み重なる単語帳</p>
+  </header>
+
+  <nav class="tabs" id="tabs">
+    <button data-tab="import" class="active">＋ 取り込み</button>
+    <button data-tab="vocab">単語帳</button>
+    <button data-tab="quiz">クイズ</button>
+    <button data-tab="syntax">構文</button>
+    <button data-tab="stats">分析</button>
+    <button data-tab="data">データ</button>
+  </nav>
+
+  <!-- ===== 取り込み ===== -->
+  <section class="tabpane active" id="pane-import">
+    <div class="card">
+      <h2>会話の文字起こしを貼り付け<span class="sub">ChatGPTの音声会話ログなど</span></h2>
+      <textarea id="pasteBox" placeholder="例:
+You: Hi! Today I went to Shibuya with my friend.
+ChatGPT: That sounds fun! What did you do there?
+You: We ate ramen and... how do you say 行列?
+
+「You:」「ChatGPT:」のような話者ラベルがあれば自動で判定します。ラベルなしでもOK（全部自分の発言として扱い、あとで調整できます）。"></textarea>
+      <div class="row" style="margin-top:10px">
+        <input type="text" id="sessionTitle" placeholder="タイトル（任意）例: 週末の話" style="flex:1;min-width:160px">
+        <button class="btn primary" id="btnParse">解析する</button>
+      </div>
+      <div id="parseNotice"></div>
+      <div id="previewList"></div>
+      <div class="row" style="margin-top:14px" id="commitRow" hidden>
+        <button class="btn primary" id="btnCommit">この内容で単語帳に追加</button>
+        <span class="note" id="commitInfo"></span>
+      </div>
+      <div id="importResult"></div>
+    </div>
+  </section>
+
+  <!-- ===== 単語帳 ===== -->
+  <section class="tabpane" id="pane-vocab">
+    <div class="card">
+      <div class="toolbar">
+        <span class="seg" id="vocabKind">
+          <button data-kind="words" class="active">単語</button>
+          <button data-kind="phrases">フレーズ</button>
+        </span>
+        <input type="text" id="vocabSearch" placeholder="検索…">
+        <select id="vocabSort">
+          <option value="freq">よく使う順</option>
+          <option value="recent">新しい順</option>
+          <option value="abc">ABC順</option>
+        </select>
+        <button class="btn small" id="vocabStarFilter">★のみ</button>
+      </div>
+      <div id="vocabList"></div>
+    </div>
+  </section>
+
+  <!-- ===== クイズ ===== -->
+  <section class="tabpane" id="pane-quiz">
+    <div class="card">
+      <div class="toolbar">
+        <span class="seg" id="quizMode">
+          <button data-mode="choice" class="active">4択クイズ</button>
+          <button data-mode="flash">フラッシュカード</button>
+          <button data-mode="scramble">並べ替え</button>
+        </span>
+        <span class="note" id="dueInfo"></span>
+      </div>
+      <div id="quizArea"></div>
+    </div>
+  </section>
+
+  <!-- ===== 構文 ===== -->
+  <section class="tabpane" id="pane-syntax">
+    <div class="card">
+      <h2>リキャスト取り込み<span class="sub">AIに直してもらった文をためて構文練習に</span></h2>
+      <p class="note">まず下のプロンプトをコピーしてChatGPT等との会話の最初に貼ると、あなたの文を直した「Recast: 元の文 → 自然な文」が返ってくるようになります。会話後、ログをそのままここに貼れば矢印（→）の行だけを自動で拾って蓄積します。</p>
+      <div class="row" style="margin:10px 0">
+        <button class="btn" id="btnRecastPrompt">依頼プロンプトをコピー</button>
+        <span class="note" id="recastCopied"></span>
+      </div>
+      <textarea id="recastBox" placeholder="例:
+Recast: I go to shopping yesterday → I went shopping yesterday
+Recast: It is difficult for talk → It's hard to talk about it
+
+会話ログ全体を貼ってもOK（「元の文 → 直した文」の行だけ自動抽出します）"></textarea>
+      <div class="row" style="margin-top:10px">
+        <button class="btn primary" id="btnRecastAdd">取り込む</button>
+      </div>
+      <div id="recastMsg"></div>
+    </div>
+    <div class="card">
+      <h2>リキャスト一覧<span class="sub">修正された箇所がハイライトされます。「並べ替え」クイズの出題元になります</span></h2>
+      <div id="recastList"></div>
+    </div>
+    <div class="card">
+      <h2>文型パターン帳<span class="sub">会話ログから自動集計 — 未使用の型に挑戦しよう</span></h2>
+      <div id="patList"></div>
+    </div>
+  </section>
+
+  <!-- ===== 分析 ===== -->
+  <section class="tabpane" id="pane-stats">
+    <div class="tiles" id="statTiles"></div>
+    <div class="card">
+      <h2>よく使う単語 TOP12<span class="sub">自分の発言のみ・全期間</span></h2>
+      <div class="chartbox" id="barChart"></div>
+      <details class="tbl"><summary>表で見る</summary><div id="barTable"></div></details>
+    </div>
+    <div class="card">
+      <h2>語彙の成長<span class="sub">セッションごとの累計ユニーク単語数</span></h2>
+      <div class="chartbox" id="lineChart"></div>
+      <details class="tbl"><summary>表で見る</summary><div id="lineTable"></div></details>
+    </div>
+    <div class="card">
+      <h2>言い換え・レベルアップ提案<span class="sub">使用頻度が高い表現から自動提案</span></h2>
+      <div id="suggList"></div>
+    </div>
+    <div class="card">
+      <h2>AIでさらに深掘り</h2>
+      <p class="note">あなたの頻出語と直近の会話をまとめた分析依頼プロンプトをコピーします。ChatGPTやClaudeに貼り付けると、癖の分析やより自然な言い換えを提案してもらえます。</p>
+      <div class="row" style="margin-top:10px">
+        <button class="btn" id="btnAiPrompt">分析プロンプトをコピー</button>
+        <span class="note" id="aiCopied"></span>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===== データ ===== -->
+  <section class="tabpane" id="pane-data">
+    <div class="card">
+      <h2>保存状態</h2>
+      <div id="storageStatus"></div>
+      <p class="hint">このアプリはブラウザ内にデータを保存します（外部送信なし）。ブラウザや端末を変えるとき・念のためのバックアップには、下のエクスポートを使ってください。</p>
+    </div>
+    <div class="card">
+      <h2>バックアップ</h2>
+      <div class="row">
+        <button class="btn" id="btnExport">エクスポート（JSON保存）</button>
+        <label class="btn" style="cursor:pointer">インポート<input type="file" id="fileImport" accept=".json" hidden></label>
+        <button class="btn danger" id="btnWipe">全データ削除</button>
+      </div>
+      <div id="dataMsg"></div>
+    </div>
+    <div class="card">
+      <h2>セッション履歴</h2>
+      <div class="sesslist" id="sessList"></div>
+    </div>
+  </section>
+
+  <footer>英会話ノート v1 — データはこのブラウザ内にのみ保存されます</footer>
+</div>
+<script>
+'use strict';
+/* ================= utilities ================= */
+const $ = s => document.querySelector(s);
+const $$ = s => Array.from(document.querySelectorAll(s));
+const el = (tag, cls, text) => { const e = document.createElement(tag); if (cls) e.className = cls; if (text != null) e.textContent = text; return e; };
+const fmtN = n => n.toLocaleString('en-US');
+const today = () => new Date().toISOString().slice(0, 10);
+const esc = null; // never use innerHTML with user data — textContent only
+
+/* ================= linguistic resources ================= */
+const STOP = new Set(("a an the and or but so because if when while of to in on at by for with from as into over under about after before between out off up down again then than too very just not no nor only own same s t can will don should now i me my myself we our ours ourselves you your yours yourself yourselves he him his himself she her hers herself it its itself they them their theirs themselves what which who whom this that these those am is are was were be been being have has had having do does did doing would could ought im youre hes shes its were theyre ive youve weve theyve id youd hed shed wed theyd ill youll hell shell well theyll isnt arent wasnt werent hasnt havent hadnt doesnt dont didnt wont wouldnt shant shouldnt cant cannot couldnt mustnt lets thats whos whats heres theres whens wheres whys hows a's ain't aren't c'mon c's can't couldn't didn't doesn't don't hadn't hasn't haven't he's here's i'd i'll i'm i've isn't it'd it'll it's let's shouldn't that's there's they'd they'll they're they've wasn't we'd we'll we're we've weren't what's where's who's won't wouldn't you'd you'll you're you've um uh oh ah okay ok yeah yes no hmm hm er mm wow hey hi hello").split(/\s+/));
+const EDGE_STOP = new Set("a an the of to and or but so in on at by for with from as i you he she it we they is are was were am do does did my your his her its our their that this".split(/\s+/));
+const IRREG = {went:'go',gone:'go',goes:'go',did:'do',done:'do',does:'do',had:'have',has:'have',got:'get',gotten:'get',gets:'get',made:'make',said:'say',took:'take',taken:'take',came:'come',saw:'see',seen:'see',knew:'know',known:'know',thought:'think',felt:'feel',told:'tell',found:'find',gave:'give',given:'give',ate:'eat',eaten:'eat',bought:'buy',brought:'bring',spoke:'speak',spoken:'speak',wrote:'write',written:'write',met:'meet',ran:'run',left:'leave',heard:'hear',kept:'keep',slept:'sleep',paid:'pay',sent:'send',spent:'spend',lost:'lose',meant:'mean',read:'read',sat:'sit',stood:'stand',woke:'wake',drove:'drive',flew:'fly',drank:'drink',sang:'sing',swam:'swim',began:'begin',chose:'choose',fell:'fall',forgot:'forget',held:'hold',taught:'teach',understood:'understand',wore:'wear',won:'win',children:'child',men:'man',women:'woman',feet:'foot',teeth:'tooth',better:'good',best:'good',worse:'bad',worst:'bad',tried:'try',studied:'study',carried:'carry',worried:'worry'};
+const BASES = new Set("make take come give live love like move use choose close change practice dance notice decide describe realize recognize imagine improve include increase introduce invite manage prepare promise receive remove require serve share smile solve suppose surprise arrive achieve believe compare complete continue create excite relax enjoy travel visit study work play talk speak learn teach start finish stop watch listen read write walk run eat drink cook clean open turn help ask answer call wait stay live look feel think know want need try buy sell pay spend save plan hope wish dream sleep wake meet join leave move stand sit understand remember forget explain happen become build break bring carry catch check climb count cover cross cry cut die draw drop earn fail fall fight fill find fix fly follow grow guess hang hate hear hit hold hurt keep kick kill laugh lay lead lend let lie lift lose miss order own pass pick point pull push put rain raise reach ride ring rise say see seem send set shake shine shoot show shut sing sink smell sound stick strike swim throw touch train travel treat wear win wonder worry cook shop chat text drive park book cost fit plan trip food friend family weekend morning night time year month week day hour minute people person student teacher word sentence question answer story movie music song game sport team school office company job hobby weather season spring summer fall winter rain snow train station restaurant coffee lunch dinner breakfast".split(/\s+/));
+function lemma(w) {
+  if (IRREG[w]) return IRREG[w];
+  if (w.length <= 3) return w;
+  const cand = [];
+  if (w.endsWith('ies')) cand.push(w.slice(0, -3) + 'y');
+  if (w.endsWith('sses') || w.endsWith('shes') || w.endsWith('ches') || w.endsWith('xes') || w.endsWith('zes') || w.endsWith('oes')) cand.push(w.slice(0, -2));
+  if (w.endsWith('s') && !w.endsWith('ss') && !w.endsWith('us') && !w.endsWith('is')) cand.push(w.slice(0, -1));
+  if (w.endsWith('ing') && w.length > 5) { const b = w.slice(0, -3); cand.push(b + 'e', b); if (b.length > 2 && b[b.length-1] === b[b.length-2]) cand.push(b.slice(0, -1)); }
+  if (w.endsWith('ed') && w.length > 4) { const b = w.slice(0, -2); cand.push(b + 'e'.slice(0,0), b, b + 'e'); if (b.length > 2 && b[b.length-1] === b[b.length-2]) cand.push(b.slice(0, -1)); if (w.endsWith('ied')) cand.push(w.slice(0, -3) + 'y'); }
+  for (const c of cand) if (BASES.has(c)) return c;
+  // plural strip is safe enough even off-list
+  if (w.endsWith('s') && !w.endsWith('ss') && !w.endsWith('us') && !w.endsWith('is') && !w.endsWith('ies')) return w.slice(0, -1);
+  return w;
+}
+/* 言い換え辞書: 使いすぎがちな表現 → レベルアップ候補 */
+const REPHRASE = [
+  {k:'very', ja:'「very」の連発', alts:'extremely / incredibly / really ではなく強い形容詞1語（huge, freezing, exhausted…）', tip:'very + 形容詞は、強い形容詞1語に置き換えると自然でこなれた印象に。'},
+  {k:'good', ja:'「good」', alts:'great / wonderful / impressive / solid / decent', tip:'何がどう良いのかを表す語に変えると具体的に伝わります。'},
+  {k:'bad', ja:'「bad」', alts:'terrible / awful / disappointing / rough', tip:''},
+  {k:'nice', ja:'「nice」', alts:'lovely / pleasant / cozy / friendly', tip:''},
+  {k:'big', ja:'「big」', alts:'huge / enormous / major / significant', tip:''},
+  {k:'small', ja:'「small」', alts:'tiny / compact / minor / slight', tip:''},
+  {k:'fun', ja:'「fun」', alts:'enjoyable / exciting / a blast / entertaining', tip:'"It was a blast!" はカジュアルで自然な言い方。'},
+  {k:'delicious', ja:'「delicious」', alts:'tasty / amazing / flavorful / to die for', tip:'毎回deliciousだと単調に。tastyや "It was amazing" も混ぜてみて。'},
+  {k:'interesting', ja:'「interesting」', alts:'fascinating / intriguing / thought-provoking', tip:''},
+  {k:'difficult', ja:'「difficult」', alts:'challenging / tough / tricky / demanding', tip:''},
+  {k:'easy', ja:'「easy」', alts:'simple / straightforward / a piece of cake', tip:''},
+  {k:'tired', ja:'「tired」', alts:'exhausted / worn out / drained / sleepy', tip:''},
+  {k:'busy', ja:'「busy」', alts:'swamped / tied up / hectic (日々が)', tip:'"I\'ve been swamped lately." は忙しさの定番表現。'},
+  {k:'happy', ja:'「happy」', alts:'glad / thrilled / delighted / stoked', tip:''},
+  {k:'like', ja:'「like」(好き)', alts:'enjoy / be into / be a fan of / love', tip:'"I\'m really into cooking." のように into が使えると自然。'},
+  {k:'maybe', ja:'「maybe」', alts:'perhaps / probably / I guess / possibly', tip:'確信度によって使い分けると表現の幅が出ます。'},
+  {k:'i think', ja:'「I think」の連発', alts:'I believe / I feel like / In my opinion / It seems to me', tip:'文頭が毎回 I think になりがち。バリエーションを持つと大人っぽい英語に。'},
+  {k:'a lot of', ja:'「a lot of」', alts:'plenty of / tons of / quite a few / loads of', tip:''},
+  {k:'i want to', ja:'「I want to」', alts:"I'd like to / I'm hoping to / I'm planning to / I feel like -ing", tip:"丁寧に言いたいときは I'd like to が定番。"},
+  {k:'i have to', ja:'「I have to」', alts:'I need to / I\'ve got to (gotta) / I\'m supposed to', tip:''},
+  {k:'how about', ja:'「How about」', alts:'What about / Why don\'t we / Shall we', tip:''},
+  {k:'and then', ja:'「and then」の連発', alts:'after that / afterwards / next / eventually', tip:'出来事を並べるとき and then ばかりだと幼く聞こえがち。'},
+  {k:'so', ja:'「so」のつなぎすぎ', alts:'therefore / that\'s why / as a result / anyway', tip:'文頭のso連発は口癖になりやすいポイント。'},
+  {k:'really', ja:'「really」', alts:'truly / absolutely / definitely / super (カジュアル)', tip:''},
+  {k:'many', ja:'「many」', alts:'a number of / countless / dozens of', tip:''},
+  {k:'want', ja:'「want」', alts:'would love / hope / feel like', tip:''},
+  {k:'talk', ja:'「talk」', alts:'chat / discuss / catch up / have a conversation', tip:''},
+  {k:'think', ja:'「think」', alts:'believe / assume / figure / suppose', tip:''}
+];
+
+/* ================= data layer ================= */
+const KEY = 'eikaiwa_note_v1';
+let storageOK = true;
+let db = { sessions: [], vocab: {}, phrases: {}, recasts: [] };
+function loadDB() {
+  try {
+    const raw = localStorage.getItem(KEY);
+    if (raw) db = Object.assign({ sessions: [], vocab: {}, phrases: {}, recasts: [] }, JSON.parse(raw));
+    localStorage.setItem('__t', '1'); localStorage.removeItem('__t');
+  } catch (e) { storageOK = false; }
+}
+function saveDB() {
+  pruneDB();
+  if (!storageOK) return;
+  try { localStorage.setItem(KEY, JSON.stringify(db)); }
+  catch (e) { storageOK = false; renderStorage(); }
+}
+function pruneDB() {
+  const keys = Object.keys(db.phrases);
+  if (keys.length > 4000) {
+    keys.filter(k => db.phrases[k].c < 2)
+        .sort((a, b) => (db.phrases[a].last || '').localeCompare(db.phrases[b].last || ''))
+        .slice(0, keys.length - 3500)
+        .forEach(k => delete db.phrases[k]);
+  }
+}
+
+/* ================= transcript parsing ================= */
+const SELF_RE = /^(you|me|user|human|speaker ?1|自分|わたし|私|あなた|ユーザー|kuni)$/i;
+const OTHER_RE = /^(chatgpt|chat gpt|gpt|assistant|ai|claude|gemini|bot|speaker ?2|tutor|teacher|先生|相手|アシスタント)$/i;
+const LABEL_RE = /^\s*(?:[-*>]\s*)?(?:\*\*)?([A-Za-z぀-ヿ一-鿿][A-Za-z぀-ヿ一-鿿0-9 _.\-]{0,24}?)(?:\*\*)?\s*[:：]\s*(.*)$/;
+let preview = []; // [{speaker:'self'|'other'|'skip', label, text}]
+function parseTranscript(text) {
+  const lines = text.split(/\r?\n/);
+  const utts = [];
+  let sawLabel = false;
+  const unknownMap = {}; let unknownOrder = 0;
+  for (const line of lines) {
+    const trimmed = line.trim();
+    if (!trimmed) continue;
+    const m = trimmed.match(LABEL_RE);
+    if (m && m[1]) {
+      const label = m[1].trim();
+      let sp = null;
+      if (SELF_RE.test(label)) sp = 'self';
+      else if (OTHER_RE.test(label)) sp = 'other';
+      else { // unknown label: 1st distinct = self, 2nd = other (guess)
+        if (!(label.toLowerCase() in unknownMap)) unknownMap[label.toLowerCase()] = (unknownOrder++ % 2 === 0) ? 'self' : 'other';
+        sp = unknownMap[label.toLowerCase()];
+      }
+      sawLabel = true;
+      utts.push({ speaker: sp, label, text: m[2] || '' });
+    } else if (utts.length && sawLabel) {
+      utts[utts.length - 1].text += ' ' + trimmed; // continuation of previous speaker
+    } else {
+      utts.push({ speaker: 'self', label: '', text: trimmed });
+    }
+  }
+  return { utts: utts.filter(u => u.text.trim()), sawLabel };
+}
+/* tokenize + extraction */
+const tokenize = s => (s.toLowerCase().match(/[a-z]+(?:'[a-z]+)?/g) || []);
+const splitSentences = s => s.split(/(?<=[.!?])\s+|\n/).map(x => x.trim()).filter(Boolean);
+function extract(ownTexts) {
+  const words = {}; const phrases = {}; const examples = {};
+  let tokenCount = 0, sentCount = 0;
+  for (const t of ownTexts) {
+    for (const sent of splitSentences(t)) {
+      const toks = tokenize(sent);
+      if (!toks.length) continue;
+      sentCount++; tokenCount += toks.length;
+      const hasEnough = toks.length >= 3;
+      for (const tk of toks) {
+        if (STOP.has(tk) || tk.length < 2) continue;
+        const lm = lemma(tk);
+        if (STOP.has(lm)) continue;
+        words[lm] = (words[lm] || 0) + 1;
+        if (!examples[lm]) examples[lm] = [];
+        if (hasEnough && examples[lm].length < 3 && sent.length <= 160 && !examples[lm].includes(sent)) examples[lm].push(sent);
+      }
+      for (let n = 2; n <= 4; n++) {
+        for (let i = 0; i + n <= toks.length; i++) {
+          const gram = toks.slice(i, i + n);
+          if (gram.every(g => STOP.has(g)) && n < 3) continue;
+          if (EDGE_STOP.has(gram[n - 1])) continue;
+          if (gram.some(g => g.length < 2 && g !== 'i' && g !== 'a')) continue;
+          const key = gram.join(' ');
+          if (!phrases[key]) phrases[key] = { c: 0, ex: '' };
+          phrases[key].c++;
+          if (!phrases[key].ex && sent.length <= 160) phrases[key].ex = sent;
+        }
+      }
+    }
+  }
+  return { words, phrases, examples, tokenCount, sentCount };
+}
+/* ================= import tab ================= */
+$('#btnParse').addEventListener('click', () => {
+  const text = $('#pasteBox').value;
+  $('#importResult').textContent = '';
+  const box = $('#previewList'); box.textContent = '';
+  const notice = $('#parseNotice'); notice.textContent = '';
+  if (!text.trim()) { notice.appendChild(banner('warn2', 'テキストを貼り付けてください。')); return; }
+  const { utts, sawLabel } = parseTranscript(text);
+  preview = utts;
+  if (!sawLabel) {
+    notice.appendChild(banner('warn2', '話者ラベルが見つからなかったため、すべて「自分」の発言として扱います。相手の発言が混ざっている場合は、左のチップをタップして「相手」や「除外」に切り替えてください。'));
+  } else {
+    notice.appendChild(banner('ok', '話者を自動判定しました。間違っていたらチップをタップで切り替えできます（自分 → 相手 → 除外）。'));
+  }
+  renderPreview();
+  $('#commitRow').hidden = false;
+  updateCommitInfo();
+});
+function banner(cls, msg) { return el('div', 'banner ' + cls, msg); }
+function renderPreview() {
+  const box = $('#previewList'); box.textContent = '';
+  const names = { self: '自分', other: '相手', skip: '除外' };
+  preview.forEach((u, i) => {
+    const row = el('div', 'utt ' + u.speaker);
+    const chip = el('button', 'chip', names[u.speaker]);
+    chip.addEventListener('click', () => {
+      u.speaker = u.speaker === 'self' ? 'other' : u.speaker === 'other' ? 'skip' : 'self';
+      renderPreview(); updateCommitInfo();
+    });
+    const txt = el('div', 'txt');
+    if (u.label) txt.appendChild(el('span', 'lbl', u.label));
+    txt.appendChild(document.createTextNode(u.text));
+    row.appendChild(chip); row.appendChild(txt);
+    box.appendChild(row);
+  });
+}
+function updateCommitInfo() {
+  const own = preview.filter(u => u.speaker === 'self');
+  const w = own.reduce((a, u) => a + tokenize(u.text).length, 0);
+  $('#commitInfo').textContent = `自分の発言 ${own.length}件・約${w}語を取り込みます`;
+  $('#btnCommit').disabled = own.length === 0;
+}
+$('#btnCommit').addEventListener('click', () => {
+  const own = preview.filter(u => u.speaker === 'self').map(u => u.text);
+  if (!own.length) return;
+  const { words, phrases, examples, tokenCount, sentCount } = extract(own);
+  const d = today();
+  let newWords = 0;
+  for (const [w, c] of Object.entries(words)) {
+    if (!db.vocab[w]) { db.vocab[w] = { c: 0, first: d, last: d, ex: [], note: '', star: false, box: 0, due: d }; newWords++; }
+    const v = db.vocab[w];
+    v.c += c; v.last = d;
+    for (const ex of (examples[w] || [])) if (v.ex.length < 3 && !v.ex.includes(ex)) v.ex.push(ex);
+  }
+  for (const [p, info] of Object.entries(phrases)) {
+    if (!db.phrases[p]) db.phrases[p] = { c: 0, first: d, last: d, ex: '', star: false };
+    const q = db.phrases[p];
+    q.c += info.c; q.last = d;
+    if (!q.ex) q.ex = info.ex;
+  }
+  const cumVocab = Object.keys(db.vocab).length;
+  db.sessions.push({
+    date: d, title: $('#sessionTitle').value.trim() || `セッション${db.sessions.length + 1}`,
+    words: tokenCount, sents: sentCount, newWords, cumVocab,
+    ownText: own.join('\n').slice(0, 4000)
+  });
+  saveDB();
+  preview = []; $('#previewList').textContent = ''; $('#commitRow').hidden = true;
+  $('#pasteBox').value = ''; $('#sessionTitle').value = ''; $('#parseNotice').textContent = '';
+  const r = $('#importResult'); r.textContent = '';
+  r.appendChild(banner('ok', `追加しました！ 新しい単語 ${newWords}語 / 発話 ${tokenCount}語。累計語彙は ${cumVocab}語になりました。「単語帳」「分析」タブで確認できます。`));
+  renderAll();
+});
+
+/* ================= vocab tab ================= */
+let vocabKind = 'words', starOnly = false;
+$('#vocabKind').addEventListener('click', e => {
+  const b = e.target.closest('button'); if (!b) return;
+  vocabKind = b.dataset.kind;
+  $$('#vocabKind button').forEach(x => x.classList.toggle('active', x === b));
+  renderVocab();
+});
+$('#vocabSearch').addEventListener('input', renderVocab);
+$('#vocabSort').addEventListener('change', renderVocab);
+$('#vocabStarFilter').addEventListener('click', () => {
+  starOnly = !starOnly;
+  $('#vocabStarFilter').classList.toggle('primary', starOnly);
+  renderVocab();
+});
+function highlightWord(sentence, w) {
+  const span = el('span');
+  const re = new RegExp('\\b[\\w\']*' + w.replace(/[.*+?^${}()|[\]\\]/g, '\\$&').slice(0, 30) + '[\\w\']*\\b', 'i');
+  const m = sentence.match(re);
+  if (!m) { span.textContent = sentence; return span; }
+  span.appendChild(document.createTextNode(sentence.slice(0, m.index)));
+  span.appendChild(el('em', null, m[0]));
+  span.appendChild(document.createTextNode(sentence.slice(m.index + m[0].length)));
+  return span;
+}
+function renderVocab() {
+  const list = $('#vocabList'); list.textContent = '';
+  const q = $('#vocabSearch').value.trim().toLowerCase();
+  const sort = $('#vocabSort').value;
+  const src = vocabKind === 'words' ? db.vocab : db.phrases;
+  let items = Object.entries(src);
+  if (vocabKind === 'phrases') items = items.filter(([, v]) => v.c >= 2);
+  if (q) items = items.filter(([k, v]) => k.includes(q) || (v.note || '').toLowerCase().includes(q));
+  if (starOnly) items = items.filter(([, v]) => v.star);
+  items.sort((a, b) => sort === 'freq' ? b[1].c - a[1].c
+    : sort === 'recent' ? (b[1].last + '' + String(b[1].c).padStart(6,'0')).localeCompare(a[1].last + '' + String(a[1].c).padStart(6,'0'))
+    : a[0].localeCompare(b[0]));
+  if (!items.length) {
+    list.appendChild(el('div', 'empty', db.sessions.length ? '該当なし' : 'まだデータがありません。「＋ 取り込み」タブから会話を追加してください。'));
+    return;
+  }
+  const d = today();
+  for (const [k, v] of items.slice(0, 300)) {
+    const item = el('div', 'vitem');
+    const head = el('div', 'vhead');
+    head.appendChild(el('span', 'vword', k));
+    head.appendChild(el('span', 'vcount', v.c + '回'));
+    if (v.first === d) head.appendChild(el('span', 'vnew', 'NEW'));
+    const star = el('button', 'vstar' + (v.star ? ' on' : ''), '★');
+    star.title = '重要マーク';
+    star.addEventListener('click', () => { v.star = !v.star; saveDB(); renderVocab(); });
+    head.appendChild(star);
+    item.appendChild(head);
+    const exArr = vocabKind === 'words' ? v.ex : (v.ex ? [v.ex] : []);
+    for (const ex of exArr.slice(0, 2)) {
+      const p = el('div', 'vex'); p.appendChild(document.createTextNode('“'));
+      p.appendChild(highlightWord(ex, k.split(' ')[0]));
+      p.appendChild(document.createTextNode('”'));
+      item.appendChild(p);
+    }
+    if (vocabKind === 'words') {
+      const noteRow = el('div', 'vnote');
+      const inp = el('input'); inp.type = 'text'; inp.placeholder = '意味・メモを追加…'; inp.value = v.note || '';
+      inp.addEventListener('change', () => { v.note = inp.value; saveDB(); });
+      noteRow.appendChild(inp); item.appendChild(noteRow);
+    }
+    const rp = REPHRASE.find(r => r.k === k);
+    if (rp) {
+      const div = el('div', 'vreph');
+      div.appendChild(document.createTextNode('💡 言い換え: '));
+      const b = el('b', null, rp.alts); div.appendChild(b);
+      item.appendChild(div);
+    }
+    list.appendChild(item);
+  }
+  if (items.length > 300) list.appendChild(el('div', 'hint', `他 ${items.length - 300} 件（検索で絞り込めます）`));
+}
+/* ================= quiz tab ================= */
+const SRS_DAYS = [0, 1, 3, 7, 14, 30];
+let quizModeV = 'choice', currentQ = null;
+$('#quizMode').addEventListener('click', e => {
+  const b = e.target.closest('button'); if (!b) return;
+  quizModeV = b.dataset.mode;
+  $$('#quizMode button').forEach(x => x.classList.toggle('active', x === b));
+  nextQuiz();
+});
+function nextQuiz() { quizModeV === 'scramble' ? nextScramble() : nextQuestion(); }
+function quizPool() {
+  return Object.entries(db.vocab).filter(([w, v]) => v.ex.length > 0 && w.length >= 3);
+}
+function pickTarget() {
+  const pool = quizPool();
+  if (!pool.length) return null;
+  const d = today();
+  const due = pool.filter(([, v]) => (v.due || d) <= d);
+  const from = due.length ? due : pool;
+  // prefer lower box (weaker) items
+  from.sort((a, b) => (a[1].box || 0) - (b[1].box || 0) || Math.sign(hashish(a[0]) - hashish(b[0])));
+  const topN = from.slice(0, Math.max(5, Math.floor(from.length / 3)));
+  return topN[Math.floor(Math.random() * topN.length)];
+}
+function hashish(s) { let h = 0; for (const c of s) h = (h * 31 + c.charCodeAt(0)) % 9973; return h; }
+function blankOut(sentence, w) {
+  const re = new RegExp("\\b[A-Za-z']*" + w.replace(/[.*+?^${}()|[\]\\]/g, '\\$&') + "[A-Za-z']*\\b|\\b" + w.slice(0, Math.max(3, w.length - 2)) + "[A-Za-z']*\\b", 'gi');
+  let replaced = false;
+  const frag = el('span');
+  let rest = sentence;
+  const m = sentence.match(re);
+  if (m) {
+    const idx = sentence.toLowerCase().indexOf(m[0].toLowerCase());
+    frag.appendChild(document.createTextNode(sentence.slice(0, idx)));
+    frag.appendChild(el('span', 'blank', '＿＿＿'));
+    frag.appendChild(document.createTextNode(sentence.slice(idx + m[0].length)));
+    replaced = true;
+  } else frag.textContent = sentence;
+  return { frag, replaced };
+}
+function srsUpdate(v, ok) {
+  v.box = Math.max(0, Math.min(5, (v.box || 0) + (ok ? 1 : -1)));
+  const dt = new Date(); dt.setDate(dt.getDate() + SRS_DAYS[v.box]);
+  v.due = dt.toISOString().slice(0, 10);
+  saveDB(); updateDueInfo();
+}
+function updateDueInfo() {
+  const d = today();
+  const due = quizPool().filter(([, v]) => (v.due || d) <= d).length;
+  $('#dueInfo').textContent = due ? `今日の復習対象: ${due}語` : '復習対象なし（全問からランダム出題）';
+}
+function nextQuestion() {
+  const area = $('#quizArea'); area.textContent = '';
+  const t = pickTarget();
+  if (!t) { area.appendChild(el('div', 'empty', '例文つきの単語がまだありません。会話を取り込むとクイズが作られます。')); return; }
+  const [word, v] = t;
+  const sentence = v.ex[Math.floor(Math.random() * v.ex.length)];
+  const card = el('div', 'quizcard');
+  const { frag } = blankOut(sentence, word);
+  const qs = el('div', 'qsent'); qs.appendChild(frag);
+  card.appendChild(el('div', 'qmeta', quizModeV === 'choice' ? '空欄に入る、あなたが実際に使った単語は？' : 'あなたが使った文です。空欄の単語を思い出せる？'));
+  card.appendChild(qs);
+  if (quizModeV === 'choice') {
+    const others = quizPool().map(x => x[0]).filter(w => w !== word);
+    shuffle(others);
+    const choices = shuffle([word, ...others.slice(0, 3)]);
+    const grid = el('div', 'qchoices');
+    let answered = false;
+    choices.forEach(c => {
+      const b = el('button', null, c);
+      b.addEventListener('click', () => {
+        if (answered) return; answered = true;
+        const ok = c === word;
+        b.classList.add(ok ? 'correct' : 'wrong');
+        if (!ok) grid.querySelectorAll('button').forEach(x => { if (x.textContent === word) x.classList.add('correct'); });
+        srsUpdate(v, ok);
+        const after = el('div');
+        if (v.note) after.appendChild(el('div', 'qnote', `メモ: ${v.note}`));
+        const nb = el('button', 'btn primary', '次の問題 →'); nb.style.marginTop = '8px';
+        nb.addEventListener('click', nextQuestion);
+        after.appendChild(nb); card.appendChild(after);
+      });
+      grid.appendChild(b);
+    });
+    card.appendChild(grid);
+  } else {
+    const reveal = el('button', 'btn primary', '答えを見る');
+    reveal.addEventListener('click', () => {
+      reveal.remove();
+      card.appendChild(el('div', 'qanswer', word));
+      if (v.note) card.appendChild(el('div', 'qnote', v.note));
+      const row = el('div', 'row'); row.style.justifyContent = 'center';
+      const ng = el('button', 'btn', 'まだ 🌀'), ok = el('button', 'btn primary', '覚えてる ✓');
+      ng.addEventListener('click', () => { srsUpdate(v, false); nextQuestion(); });
+      ok.addEventListener('click', () => { srsUpdate(v, true); nextQuestion(); });
+      row.appendChild(ng); row.appendChild(ok); card.appendChild(row);
+    });
+    card.appendChild(reveal);
+  }
+  area.appendChild(card);
+}
+function shuffle(a) { for (let i = a.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [a[i], a[j]] = [a[j], a[i]]; } return a; }
+
+/* ================= scramble quiz ================= */
+function scramblePool() {
+  const rec = (db.recasts || [])
+    .map(r => ({ type: 'recast', ref: r, sent: r.fixed }))
+    .filter(x => { const n = x.sent.split(/\s+/).length; return n >= 4 && n <= 14; });
+  const d = today();
+  const due = rec.filter(x => (x.ref.due || d) <= d);
+  if (due.length) return due;
+  if (rec.length) return rec;
+  const vx = []; const seen = new Set();
+  for (const v of Object.values(db.vocab)) for (const ex of v.ex) {
+    if (seen.has(ex)) continue; seen.add(ex);
+    const n = ex.split(/\s+/).length;
+    if (n >= 4 && n <= 10) vx.push({ type: 'vocab', ref: null, sent: ex });
+  }
+  return vx;
+}
+function nextScramble() {
+  const area = $('#quizArea'); area.textContent = '';
+  const pool = scramblePool();
+  if (!pool.length) {
+    area.appendChild(el('div', 'empty', '出題できる文がまだありません。会話を取り込むか、「構文」タブでリキャストを追加してください。'));
+    return;
+  }
+  const q = pool[Math.floor(Math.random() * pool.length)];
+  const tks = q.sent.replace(/[.!?]+\s*$/, '').split(/\s+/).filter(Boolean);
+  let idxs = tks.map((_, i) => i);
+  for (let t = 0; t < 6; t++) { shuffle(idxs); if (tks.length <= 2 || idxs.some((v, i) => v !== i)) break; }
+  const card = el('div', 'quizcard');
+  card.appendChild(el('div', 'qmeta', '正しい語順に並べ替えよう' + (q.type === 'recast' ? '（AIが直してくれた文）' : '（あなたが話した文）')));
+  const slots = el('div', 'scrslots empty2', 'ここをタップした語で文を作ります');
+  card.appendChild(slots);
+  const poolBox = el('div', 'scrpool');
+  const placed = []; // indices into tks
+  const btns = {};
+  const refresh = () => {
+    if (!placed.length) { slots.className = 'scrslots empty2'; slots.textContent = 'ここをタップした語で文を作ります'; }
+    else { slots.className = 'scrslots'; slots.textContent = placed.map(i => tks[i]).join(' '); }
+  };
+  const judge = () => {
+    const ok = placed.map(i => tks[i]).join(' ').toLowerCase() === tks.join(' ').toLowerCase();
+    ctlRow.remove(); poolBox.remove();
+    const res = el('div');
+    res.appendChild(banner(ok ? 'ok' : 'warn2', ok ? '🎉 正解！' : '惜しい！'));
+    const full = el('div', 'qsent'); full.appendChild(el('span', ok ? 'blank' : '', q.sent)); res.appendChild(full);
+    if (q.type === 'recast' && q.ref.orig) res.appendChild(el('div', 'qnote', '元の文: ' + q.ref.orig));
+    if (q.type === 'recast') srsUpdate(q.ref, ok);
+    const nb = el('button', 'btn primary', '次の問題 →');
+    nb.addEventListener('click', nextScramble);
+    res.appendChild(nb);
+    card.appendChild(res);
+  };
+  idxs.forEach(i => {
+    const b = el('button', null, tks[i]);
+    b.addEventListener('click', () => {
+      if (b.disabled) return;
+      b.disabled = true; placed.push(i); btns[i] = b; refresh();
+      if (placed.length === tks.length) judge();
+    });
+    poolBox.appendChild(b);
+  });
+  card.appendChild(poolBox);
+  const ctlRow = el('div', 'row'); ctlRow.style.justifyContent = 'center';
+  const undo = el('button', 'btn small', '1語戻す');
+  undo.addEventListener('click', () => { const i = placed.pop(); if (i != null && btns[i]) btns[i].disabled = false; refresh(); });
+  const reset = el('button', 'btn small', 'リセット');
+  reset.addEventListener('click', () => { placed.length = 0; Object.values(btns).forEach(b => b.disabled = false); refresh(); });
+  ctlRow.appendChild(undo); ctlRow.appendChild(reset);
+  card.appendChild(ctlRow);
+  area.appendChild(card);
+}
+
+/* ================= syntax tab: recasts ================= */
+const ARROW_RE = /→|⇒|->|=>/;
+function parseRecastLines(text) {
+  const out = [];
+  for (let line of text.split(/\r?\n/)) {
+    line = line.trim();
+    if (!ARROW_RE.test(line)) continue;
+    line = line.replace(/^[-*>•\d.)\s]*/, '').replace(/^(recast|fix|correction|修正|添削|直し)\s*[:：]\s*/i, '');
+    const parts = line.split(ARROW_RE);
+    if (parts.length < 2) continue;
+    const clean = s => s.trim().replace(/^["'“”()（）]+|["'“”()（）]+$/g, '').trim();
+    const orig = clean(parts[0]);
+    const fixed = clean(parts.slice(1).join(' '));
+    const words = s => (s.match(/[A-Za-z]+/g) || []).length;
+    if (words(orig) < 2 || words(fixed) < 2 || fixed.length > 220 || orig.length > 220) continue;
+    out.push({ orig, fixed });
+  }
+  return out;
+}
+$('#btnRecastAdd').addEventListener('click', () => {
+  const msg = $('#recastMsg'); msg.textContent = '';
+  const pairs = parseRecastLines($('#recastBox').value);
+  if (!pairs.length) { msg.appendChild(banner('warn2', '「元の文 → 直した文」の形式の行が見つかりませんでした。矢印（→ または ->）で区切られているか確認してください。')); return; }
+  if (!db.recasts) db.recasts = [];
+  const d = today(); let added = 0;
+  for (const p of pairs) {
+    if (db.recasts.some(r => r.fixed.toLowerCase() === p.fixed.toLowerCase())) continue;
+    db.recasts.push({ orig: p.orig, fixed: p.fixed, date: d, box: 0, due: d });
+    added++;
+  }
+  saveDB();
+  $('#recastBox').value = '';
+  msg.appendChild(banner('ok', `${added}件のリキャストを追加しました（重複${pairs.length - added}件はスキップ）。「クイズ」タブの並べ替えで練習できます。`));
+  renderRecasts();
+});
+$('#btnRecastPrompt').addEventListener('click', async () => {
+  const prompt = `あなたは英会話の練習相手です。次のルールで会話してください:
+1. 自然な英語で会話を続け、こちらにも質問を返してください
+2. 私の英文に不自然な点や誤りがあれば、返答の最後に必ず次の形式の行を添えてください:
+Recast: (私の言った文) → (より自然な文)
+3. 直す必要がない場合はRecast行は不要です
+4. Recastの解説は不要。会話のテンポを優先してください
+それでは会話を始めましょう。まず今日の話題を私に聞いてください。`;
+  try { await navigator.clipboard.writeText(prompt); }
+  catch (e) { const ta = document.createElement('textarea'); ta.value = prompt; document.body.appendChild(ta); ta.select(); document.execCommand('copy'); ta.remove(); }
+  $('#recastCopied').textContent = '✓ コピーしました。AIとの会話の最初に貼ってください。';
+  setTimeout(() => { $('#recastCopied').textContent = ''; }, 6000);
+});
+function diffWords(a, b) { // returns flags: true = word is common to both (LCS)
+  const n = a.length, m = b.length;
+  const L = Array.from({ length: n + 1 }, () => new Array(m + 1).fill(0));
+  const la = a.map(x => x.toLowerCase().replace(/[.,!?]+$/, ''));
+  const lb = b.map(x => x.toLowerCase().replace(/[.,!?]+$/, ''));
+  for (let i = n - 1; i >= 0; i--) for (let j = m - 1; j >= 0; j--)
+    L[i][j] = la[i] === lb[j] ? L[i + 1][j + 1] + 1 : Math.max(L[i + 1][j], L[i][j + 1]);
+  const fa = new Array(n).fill(false), fb = new Array(m).fill(false);
+  let i = 0, j = 0;
+  while (i < n && j < m) {
+    if (la[i] === lb[j]) { fa[i] = fb[j] = true; i++; j++; }
+    else if (L[i + 1][j] >= L[i][j + 1]) i++;
+    else j++;
+  }
+  return { fa, fb };
+}
+function renderRecasts() {
+  const box = $('#recastList'); box.textContent = '';
+  const rec = db.recasts || [];
+  if (!rec.length) { box.appendChild(el('div', 'empty', 'まだリキャストがありません。上の欄から追加してください。')); return; }
+  [...rec].reverse().forEach(r => {
+    const item = el('div', 'ritem');
+    const row = el('div', 'rrow');
+    const txt = el('div', 'rtxt');
+    const aw = r.orig.split(/\s+/), bw = r.fixed.split(/\s+/);
+    const { fa, fb } = diffWords(aw, bw);
+    const ro = el('div', 'ro');
+    aw.forEach((w, i) => {
+      if (fa[i]) ro.appendChild(document.createTextNode(w + ' '));
+      else { ro.appendChild(el('s', null, w)); ro.appendChild(document.createTextNode(' ')); }
+    });
+    const rf = el('div', 'rf');
+    rf.appendChild(document.createTextNode('→ '));
+    bw.forEach((w, i) => {
+      if (fb[i]) rf.appendChild(document.createTextNode(w + ' '));
+      else { const mk = document.createElement('mark'); mk.textContent = w; rf.appendChild(mk); rf.appendChild(document.createTextNode(' ')); }
+    });
+    txt.appendChild(ro); txt.appendChild(rf);
+    txt.appendChild(el('div', 'rdate', r.date + (r.box >= 4 ? ' ・習得済み✓' : '')));
+    const del = el('button', 'rdel', '✕'); del.title = '削除';
+    del.addEventListener('click', () => { db.recasts.splice(db.recasts.indexOf(r), 1); saveDB(); renderRecasts(); });
+    row.appendChild(txt); row.appendChild(del);
+    item.appendChild(row);
+    box.appendChild(item);
+  });
+}
+
+/* ================= syntax tab: patterns ================= */
+const PATTERNS = [
+  { p: 'I want to ...', ja: '〜したい', re: /\bi want to\b/ },
+  { p: "I'd like to ...", ja: '〜したいです（丁寧）', re: /\bi('d| would) like to\b/ },
+  { p: "I'm going to ...", ja: '〜するつもり', re: /\bi('m| am) going to\b/ },
+  { p: "I'm thinking of -ing", ja: '〜しようかと考え中', re: /\bi('m| am) thinking (of|about)\b/ },
+  { p: "I've been -ing", ja: 'ずっと〜している', re: /\bi('ve| have) been \w+ing\b/ },
+  { p: 'I used to ...', ja: '昔は〜していた', re: /\bi used to\b/ },
+  { p: 'It takes ... to ...', ja: '〜するのに（時間が）かかる', re: /\bit (takes|took)\b/ },
+  { p: 'There is / are ...', ja: '〜がある', re: /\bthere (is|are|was|were)\b/ },
+  { p: 'If ..., I would ...', ja: 'もし〜なら…（仮定法）', re: /\bif i\b.*\b(would|could)\b/ },
+  { p: 'When I ..., ...', ja: '〜のとき', re: /\bwhen i\b/ },
+  { p: '... because ...', ja: 'なぜなら〜', re: /\bbecause\b/ },
+  { p: 'I feel like ...', ja: '〜な気がする・〜したい気分', re: /\bi feel like\b/ },
+  { p: 'Have you ever ...?', ja: '〜したことある？', re: /\bhave you ever\b/ },
+  { p: "I've never ...", ja: '一度も〜したことがない', re: /\bi('ve| have) never\b/ },
+  { p: "I'm not sure if ...", ja: '〜かどうかわからない', re: /\bi('m| am) not sure (if|whether|what|how|why)\b/ },
+  { p: 'It sounds / looks like ...', ja: '〜のようだ・〜みたい', re: /\bit (sounds|looks|seems) like\b/ },
+  { p: 'Even though ...', ja: '〜だけれども', re: /\b(even though|although)\b/ },
+  { p: '... makes me ...', ja: '〜のおかげで…になる（無生物主語）', re: /\b(makes?|made) me\b/ },
+  { p: "I'd rather ...", ja: 'どちらかというと〜したい', re: /\bi('d| would) rather\b/ },
+  { p: 'as ... as ...', ja: '…と同じくらい〜', re: /\bas \w+ as\b/ },
+  { p: 'The reason ... is ...', ja: '理由は〜', re: /\bthe reason\b/ },
+  { p: "I'm supposed to ...", ja: '〜することになっている', re: /\bi('m| am) supposed to\b/ },
+  { p: 'Could you ...?', ja: '〜してもらえますか', re: /\b(could|would) you\b/ },
+  { p: 'How / What about ...?', ja: '〜はどう？', re: /\b(how|what) about\b/ },
+  { p: 'I should have ...', ja: '〜すべきだった（後悔）', re: /\bi should('ve| have)\b/ },
+  { p: 'I wonder ...', ja: '〜かなあ', re: /\bi wonder\b/ }
+];
+function allOwnSentences() {
+  const out = [];
+  for (const s of db.sessions) out.push(...splitSentences(s.ownText || ''));
+  for (const r of (db.recasts || [])) out.push(r.fixed);
+  return out;
+}
+function renderPatterns() {
+  const box = $('#patList'); box.textContent = '';
+  const sents = allOwnSentences();
+  if (!sents.length) { box.appendChild(el('div', 'empty', '会話を取り込むと、使えている型・まだ使っていない型がここに出ます。')); return; }
+  const used = [], unused = [];
+  for (const pt of PATTERNS) {
+    let c = 0, ex = '';
+    for (const s of sents) if (pt.re.test(s.toLowerCase())) { c++; if (!ex && s.length <= 140) ex = s; }
+    (c ? used : unused).push({ ...pt, c, ex });
+  }
+  used.sort((a, b) => b.c - a.c);
+  const addRow = (f, isUnused) => {
+    const d = el('div', 'pat' + (isUnused ? ' unused' : ''));
+    const h = el('div', 'ph');
+    h.appendChild(el('span', 'pe', f.p));
+    h.appendChild(el('span', 'pj', f.ja));
+    h.appendChild(el('span', 'cnt', isUnused ? '未使用' : f.c + '回'));
+    d.appendChild(h);
+    if (f.ex) d.appendChild(el('div', 'pex', '“' + f.ex + '”'));
+    box.appendChild(d);
+  };
+  if (used.length) { box.appendChild(el('div', 'pgroup', `使えている型 (${used.length})`)); used.forEach(f => addRow(f, false)); }
+  if (unused.length) { box.appendChild(el('div', 'pgroup', `まだ使っていない型 (${unused.length}) — 次の会話で1つ試してみよう`)); unused.forEach(f => addRow(f, true)); }
+}
+function renderSyntax() { renderRecasts(); renderPatterns(); }
+
+/* ================= stats tab ================= */
+const css = name => getComputedStyle(document.documentElement).getPropertyValue(name).trim();
+function renderTiles() {
+  const box = $('#statTiles'); box.textContent = '';
+  const sess = db.sessions;
+  const totalWords = sess.reduce((a, s) => a + s.words, 0);
+  const totalSents = sess.reduce((a, s) => a + s.sents, 0);
+  const avgLen = totalSents ? (totalWords / totalSents).toFixed(1) : '—';
+  const lastNew = sess.length ? sess[sess.length - 1].newWords : 0;
+  const tiles = [
+    ['セッション数', fmtN(sess.length), ''],
+    ['累計語彙', fmtN(Object.keys(db.vocab).length) + '語', sess.length ? `+${lastNew} 前回` : ''],
+    ['総発話量', fmtN(totalWords) + '語', ''],
+    ['平均文長', avgLen + '語/文', '']
+  ];
+  for (const [l, v, d] of tiles) {
+    const t = el('div', 'tile');
+    t.appendChild(el('div', 'tl', l));
+    t.appendChild(el('div', 'tv', v));
+    if (d) t.appendChild(el('div', 'td up', d));
+    box.appendChild(t);
+  }
+}
+const SVGNS = 'http://www.w3.org/2000/svg';
+const sv = (tag, attrs) => { const e = document.createElementNS(SVGNS, tag); for (const k in attrs) e.setAttribute(k, attrs[k]); return e; };
+function makeTip(container) {
+  let tip = container.querySelector('.viztip');
+  if (!tip) { tip = el('div', 'viztip'); container.appendChild(tip); }
+  return tip;
+}
+function showTip(tip, container, x, y, label, value) {
+  tip.textContent = '';
+  const b = el('b', null, value); tip.appendChild(b);
+  tip.appendChild(document.createTextNode('  ' + label));
+  tip.style.display = 'block';
+  const cw = container.clientWidth;
+  tip.style.left = Math.min(x + 12, cw - 130) + 'px';
+  tip.style.top = Math.max(0, y - 34) + 'px';
+}
+function renderBarChart() {
+  const box = $('#barChart'); box.textContent = '';
+  const data = Object.entries(db.vocab).sort((a, b) => b[1].c - a[1].c).slice(0, 12)
+    .map(([w, v]) => ({ label: w, value: v.c }));
+  if (!data.length) { box.appendChild(el('div', 'empty', 'データが貯まるとここにグラフが出ます')); renderTable('#barTable', [], []); return; }
+  const W = 640, rowH = 30, padL = 130, padR = 56, padT = 6;
+  const H = padT + data.length * rowH + 8;
+  const max = Math.max(...data.map(d => d.value));
+  const svg = sv('svg', { viewBox: `0 0 ${W} ${H}`, role: 'img', 'aria-label': 'よく使う単語の頻度バーチャート' });
+  const plotW = W - padL - padR;
+  // hairline vertical gridlines at clean ticks
+  const step = niceStep(max, 4);
+  for (let v = step; v <= max; v += step) {
+    const x = padL + plotW * v / max;
+    svg.appendChild(sv('line', { x1: x, y1: padT, x2: x, y2: H - 8, stroke: css('--grid'), 'stroke-width': 1 }));
+  }
+  const tip = makeTip(box);
+  data.forEach((d, i) => {
+    const y = padT + i * rowH + (rowH - 16) / 2;
+    const w = Math.max(2, plotW * d.value / max);
+    // word label (muted ink, right-aligned)
+    const lab = sv('text', { x: padL - 10, y: y + 12.5, 'text-anchor': 'end', 'font-size': 13, fill: css('--ink2') });
+    lab.textContent = d.label; svg.appendChild(lab);
+    // bar: square at baseline, 4px rounded data-end
+    const r = Math.min(4, w / 2);
+    const bar = sv('path', { d: `M${padL},${y} h${w - r} a${r},${r} 0 0 1 ${r},${r} v${16 - 2 * r} a${r},${r} 0 0 1 ${-r},${r} h${-(w - r)} z`, fill: css('--s1') });
+    svg.appendChild(bar);
+    // value at the tip (text token, not series color)
+    const val = sv('text', { x: padL + w + 8, y: y + 12.5, 'font-size': 12, fill: css('--ink2') });
+    val.textContent = d.value; svg.appendChild(val);
+    // hit target = full row
+    const hit = sv('rect', { x: 0, y: padT + i * rowH, width: W, height: rowH, fill: 'transparent' });
+    hit.addEventListener('pointermove', ev => {
+      const rect = box.getBoundingClientRect();
+      showTip(tip, box, ev.clientX - rect.left, ev.clientY - rect.top, d.label, d.value + '回');
+      bar.setAttribute('opacity', '0.82');
+    });
+    hit.addEventListener('pointerleave', () => { tip.style.display = 'none'; bar.removeAttribute('opacity'); });
+    svg.appendChild(hit);
+  });
+  // baseline
+  svg.appendChild(sv('line', { x1: padL, y1: padT, x2: padL, y2: H - 8, stroke: css('--axis'), 'stroke-width': 1 }));
+  box.appendChild(svg);
+  renderTable('#barTable', ['単語', '回数'], data.map(d => [d.label, d.value]));
+}
+function niceStep(max, n) {
+  const raw = max / n, pow = Math.pow(10, Math.floor(Math.log10(raw)));
+  for (const m of [1, 2, 5, 10]) if (m * pow >= raw) return m * pow;
+  return pow * 10;
+}
+function renderLineChart() {
+  const box = $('#lineChart'); box.textContent = '';
+  const pts = db.sessions.map((s, i) => ({ label: `${i + 1}. ${s.date.slice(5)}`, short: String(i + 1), value: s.cumVocab }));
+  if (pts.length < 2) { box.appendChild(el('div', 'empty', 'セッションが2回以上になると推移グラフが出ます')); renderTable('#lineTable', [], []); return; }
+  const W = 640, H = 250, padL = 48, padR = 60, padT = 14, padB = 30;
+  const plotW = W - padL - padR, plotH = H - padT - padB;
+  const max = Math.max(...pts.map(p => p.value));
+  const step = niceStep(max, 4);
+  const yMax = Math.ceil(max / step) * step;
+  const X = i => padL + (pts.length === 1 ? 0 : plotW * i / (pts.length - 1));
+  const Y = v => padT + plotH * (1 - v / yMax);
+  const svg = sv('svg', { viewBox: `0 0 ${W} ${H}`, role: 'img', 'aria-label': '累計語彙数の推移ラインチャート' });
+  for (let v = 0; v <= yMax; v += step) {
+    svg.appendChild(sv('line', { x1: padL, y1: Y(v), x2: W - padR, y2: Y(v), stroke: v === 0 ? css('--axis') : css('--grid'), 'stroke-width': 1 }));
+    const t = sv('text', { x: padL - 8, y: Y(v) + 4, 'text-anchor': 'end', 'font-size': 11, fill: css('--muted'), style: 'font-variant-numeric:tabular-nums' });
+    t.textContent = fmtN(v); svg.appendChild(t);
+  }
+  // x labels (thin out if many)
+  const every = Math.ceil(pts.length / 8);
+  pts.forEach((p, i) => {
+    if (i % every && i !== pts.length - 1) return;
+    const t = sv('text', { x: X(i), y: H - 10, 'text-anchor': 'middle', 'font-size': 11, fill: css('--muted') });
+    t.textContent = p.short; svg.appendChild(t);
+  });
+  // area wash + 2px line
+  const dLine = pts.map((p, i) => `${i ? 'L' : 'M'}${X(i)},${Y(p.value)}`).join(' ');
+  svg.appendChild(sv('path', { d: `${dLine} L${X(pts.length - 1)},${Y(0)} L${X(0)},${Y(0)} Z`, fill: css('--s1'), opacity: 0.1 }));
+  svg.appendChild(sv('path', { d: dLine, fill: 'none', stroke: css('--s1'), 'stroke-width': 2, 'stroke-linejoin': 'round', 'stroke-linecap': 'round' }));
+  // end marker: ≥8px dot with 2px surface ring, end label
+  const lx = X(pts.length - 1), ly = Y(pts[pts.length - 1].value);
+  svg.appendChild(sv('circle', { cx: lx, cy: ly, r: 5, fill: css('--s1'), stroke: css('--surface'), 'stroke-width': 2 }));
+  const endT = sv('text', { x: lx + 9, y: ly + 4, 'font-size': 12.5, 'font-weight': 600, fill: css('--ink') });
+  endT.textContent = fmtN(pts[pts.length - 1].value); svg.appendChild(endT);
+  // crosshair + tooltip
+  const cross = sv('line', { x1: 0, y1: padT, x2: 0, y2: padT + plotH, stroke: css('--axis'), 'stroke-width': 1, visibility: 'hidden' });
+  svg.appendChild(cross);
+  const tip = makeTip(box);
+  const hit = sv('rect', { x: padL, y: padT, width: plotW, height: plotH, fill: 'transparent' });
+  hit.addEventListener('pointermove', ev => {
+    const rect = svg.getBoundingClientRect();
+    const sx = (ev.clientX - rect.left) * W / rect.width;
+    let best = 0, bd = 1e9;
+    pts.forEach((p, i) => { const d = Math.abs(X(i) - sx); if (d < bd) { bd = d; best = i; } });
+    cross.setAttribute('x1', X(best)); cross.setAttribute('x2', X(best));
+    cross.setAttribute('visibility', 'visible');
+    const bxRect = box.getBoundingClientRect();
+    showTip(tip, box, X(best) * rect.width / W, (ev.clientY - bxRect.top), pts[best].label, fmtN(pts[best].value) + '語');
+  });
+  hit.addEventListener('pointerleave', () => { cross.setAttribute('visibility', 'hidden'); tip.style.display = 'none'; });
+  svg.appendChild(hit);
+  box.appendChild(svg);
+  renderTable('#lineTable', ['セッション', '累計語彙'], pts.map(p => [p.label, fmtN(p.value)]));
+}
+function renderTable(sel, heads, rows) {
+  const box = $(sel); box.textContent = '';
+  if (!rows.length) return;
+  const table = el('table'); const tr = el('tr');
+  heads.forEach(h => tr.appendChild(el('th', null, h)));
+  table.appendChild(tr);
+  rows.forEach(r => { const t = el('tr'); r.forEach(c => t.appendChild(el('td', null, String(c)))); table.appendChild(t); });
+  box.appendChild(table);
+}
+function renderSuggestions() {
+  const box = $('#suggList'); box.textContent = '';
+  const totalWords = db.sessions.reduce((a, s) => a + s.words, 0) || 1;
+  const found = [];
+  for (const r of REPHRASE) {
+    let c = 0;
+    if (r.k.includes(' ')) { const p = db.phrases[r.k]; c = p ? p.c : 0; }
+    else { const v = db.vocab[r.k]; c = v ? v.c : 0; }
+    if (c >= 3) found.push({ ...r, c, rate: c * 100 / totalWords });
+  }
+  found.sort((a, b) => b.c - a.c);
+  if (!found.length) { box.appendChild(el('div', 'empty', 'データが貯まると、よく使う表現への言い換え提案がここに出ます')); return; }
+  for (const f of found.slice(0, 10)) {
+    const d = el('div', 'sugg');
+    const h = el('div');
+    h.appendChild(el('span', 'sw', f.ja));
+    h.appendChild(el('span', 'sfreq', `${f.c}回使用（100語あたり${f.rate.toFixed(1)}回）`));
+    d.appendChild(h);
+    const alt = el('div', 'salt');
+    alt.appendChild(document.createTextNode('→ '));
+    alt.appendChild(el('b', null, f.alts));
+    d.appendChild(alt);
+    if (f.tip) d.appendChild(el('div', 'stip', f.tip));
+    box.appendChild(d);
+  }
+}
+$('#btnAiPrompt').addEventListener('click', async () => {
+  const top = Object.entries(db.vocab).sort((a, b) => b[1].c - a[1].c).slice(0, 30).map(([w, v]) => `${w}(${v.c})`).join(', ');
+  const phr = Object.entries(db.phrases).filter(([, v]) => v.c >= 2).sort((a, b) => b[1].c - a[1].c).slice(0, 15).map(([p, v]) => `"${p}"(${v.c})`).join(', ');
+  const last = db.sessions[db.sessions.length - 1];
+  const prompt = `私は日本人の英語学習者です。英会話練習の記録を分析して、以下を日本語で教えてください:
+1. 私の話し方の癖・傾向(語彙の偏り、文の組み立ての特徴)
+2. 使いすぎている表現と、より自然な言い換え(例文つき)
+3. 次の会話練習で意識すべきこと3つ
+
+【よく使う単語(回数)】
+${top || '(データなし)'}
+
+【よく使うフレーズ(回数)】
+${phr || '(データなし)'}
+
+【直近の会話での私の発言】
+${last ? last.ownText : '(データなし)'}`;
+  try { await navigator.clipboard.writeText(prompt); $('#aiCopied').textContent = '✓ コピーしました。ChatGPTやClaudeに貼り付けてください。'; }
+  catch (e) {
+    const ta = document.createElement('textarea'); ta.value = prompt; document.body.appendChild(ta);
+    ta.select(); document.execCommand('copy'); ta.remove();
+    $('#aiCopied').textContent = '✓ コピーしました。';
+  }
+  setTimeout(() => { $('#aiCopied').textContent = ''; }, 6000);
+});
+
+/* ================= data tab ================= */
+function renderStorage() {
+  const box = $('#storageStatus'); box.textContent = '';
+  const kv1 = el('div', 'kv');
+  kv1.appendChild(el('span', null, '自動保存 (このブラウザ内)'));
+  kv1.appendChild(el('span', 'v', storageOK ? '✓ 有効' : '✕ 無効 — エクスポートで保存してください'));
+  box.appendChild(kv1);
+  const kv2 = el('div', 'kv');
+  kv2.appendChild(el('span', null, '登録語彙 / フレーズ'));
+  kv2.appendChild(el('span', 'v', `${fmtN(Object.keys(db.vocab).length)}語 / ${fmtN(Object.keys(db.phrases).filter(k => db.phrases[k].c >= 2).length)}件 / リキャスト${(db.recasts || []).length}件`));
+  box.appendChild(kv2);
+  if (!storageOK) {
+    const warn = banner('warn2', 'このブラウザでは自動保存が使えません（プレビュー環境など）。終了前に必ず「エクスポート」でJSONを保存し、次回「インポート」で読み込んでください。');
+    box.appendChild(warn);
+  }
+}
+$('#btnExport').addEventListener('click', () => {
+  const blob = new Blob([JSON.stringify(db, null, 1)], { type: 'application/json' });
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = `eikaiwa-note-${today()}.json`;
+  a.click(); URL.revokeObjectURL(a.href);
+  $('#dataMsg').textContent = ''; $('#dataMsg').appendChild(banner('ok', 'JSONをダウンロードしました。'));
+});
+$('#fileImport').addEventListener('change', e => {
+  const f = e.target.files[0]; if (!f) return;
+  const reader = new FileReader();
+  reader.onload = () => {
+    try {
+      const obj = JSON.parse(reader.result);
+      if (!obj || typeof obj !== 'object' || !Array.isArray(obj.sessions)) throw new Error('format');
+      db = Object.assign({ sessions: [], vocab: {}, phrases: {}, recasts: [] }, obj);
+      saveDB(); renderAll();
+      $('#dataMsg').textContent = ''; $('#dataMsg').appendChild(banner('ok', `インポートしました（セッション${db.sessions.length}件 / 語彙${Object.keys(db.vocab).length}語）。`));
+    } catch (err) {
+      $('#dataMsg').textContent = ''; $('#dataMsg').appendChild(banner('warn2', '読み込めませんでした。このアプリでエクスポートしたJSONを選んでください。'));
+    }
+  };
+  reader.readAsText(f); e.target.value = '';
+});
+$('#btnWipe').addEventListener('click', () => {
+  if (!confirm('すべての単語帳データを削除します。よろしいですか？（エクスポート済みのJSONからは復元できます）')) return;
+  db = { sessions: [], vocab: {}, phrases: {}, recasts: [] };
+  try { localStorage.removeItem(KEY); } catch (e) {}
+  renderAll();
+  $('#dataMsg').textContent = ''; $('#dataMsg').appendChild(banner('ok', '削除しました。'));
+});
+function renderSessions() {
+  const box = $('#sessList'); box.textContent = '';
+  if (!db.sessions.length) { box.appendChild(el('div', 'empty', 'まだセッションがありません')); return; }
+  [...db.sessions].reverse().forEach(s => {
+    const kv = el('div', 'kv');
+    kv.appendChild(el('span', null, `${s.date}  ${s.title}`));
+    kv.appendChild(el('span', 'v', `${s.words}語 / 新出${s.newWords}語`));
+    box.appendChild(kv);
+  });
+}
+
+/* ================= tabs & init ================= */
+$('#tabs').addEventListener('click', e => {
+  const b = e.target.closest('button'); if (!b) return;
+  $$('#tabs button').forEach(x => x.classList.toggle('active', x === b));
+  $$('.tabpane').forEach(p => p.classList.toggle('active', p.id === 'pane-' + b.dataset.tab));
+  if (b.dataset.tab === 'quiz') { updateDueInfo(); if (!$('#quizArea').children.length) nextQuiz(); }
+  if (b.dataset.tab === 'syntax') renderSyntax();
+  if (b.dataset.tab === 'stats') renderStats();
+});
+function renderStats() { renderTiles(); renderBarChart(); renderLineChart(); renderSuggestions(); }
+function renderAll() {
+  renderVocab(); renderStats(); renderStorage(); renderSessions(); updateDueInfo(); renderSyntax();
+  $('#quizArea').textContent = '';
+}
+window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', renderStats);
+loadDB();
+renderAll();
+</script>
+</body>
+</html>
