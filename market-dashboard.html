@@ -432,6 +432,14 @@ const EARNINGS_SEED = {
 };
 const earnDates = {...EARNINGS_SEED};   // sym -> "YYYY-MM-DD" ("?"付き=推定)
 const earnFetched = new Set();
+/* 取得済みの決算日はブラウザに保存して再利用（期限切れは捨てる） */
+try{
+  const c = JSON.parse(localStorage.getItem("mkdb_earn") || "{}");
+  for(const [s,d] of Object.entries(c)){
+    if(typeof d === "string" && /^\d{4}-\d{2}-\d{2}\??$/.test(d) && daysUntil(d.replace("?","")) >= 0) earnDates[s] = d;
+  }
+}catch(e){}
+function saveEarnCache(){ try{ localStorage.setItem("mkdb_earn", JSON.stringify(earnDates)); }catch(e){} }
 
 function parseHoldingsStr(str){
   const list = [];
@@ -662,32 +670,53 @@ async function fetchAll(symbols, onEach){
 }
 
 /* 次回決算日 (Yahoo quoteSummary、失敗時はシード値/手入力を使用) */
+const isoAddDays = n => { const d = new Date(); d.setDate(d.getDate()+n); return d.toISOString().slice(0,10); };
 async function fetchEarnings(sym){
-  if(MOCK || manualEarn[sym] || earnFetched.has(sym) || sym==="JP10Y") return;
+  const cur = earnDates[sym];
+  const haveExact = cur && !cur.endsWith("?") && daysUntil(cur) >= 0;   // 確定日を既に持っていれば再取得不要
+  if(MOCK || manualEarn[sym] || earnFetched.has(sym) || haveExact || sym==="JP10Y") return;
   earnFetched.add(sym);
+  let got = false;
   if(fhKey && isUS(sym)){
-    try{
-      const now = new Date();
-      const from = now.toISOString().slice(0,10);
-      const to = new Date(now.getTime() + 200*86400000).toISOString().slice(0,10);
-      const res = await fetchTimeout(`https://finnhub.io/api/v1/calendar/earnings?from=${from}&to=${to}&symbol=${encodeURIComponent(sym)}&token=${fhKey}`, 6000);
-      if(res.ok){
+    /* 1) Finnhub 決算カレンダー: 無料枠は約1ヶ月分しか返さないため、1ヶ月ずつ区切って照会 */
+    for(const [a,b] of [[0,30],[30,62],[62,95]]){
+      try{
+        const res = await fetchTimeout(`https://finnhub.io/api/v1/calendar/earnings?from=${isoAddDays(a)}&to=${isoAddDays(b)}&symbol=${encodeURIComponent(sym)}&token=${fhKey}`, 6000);
+        if(!res.ok) break;
         const j = await res.json();
         const dates = (j?.earningsCalendar || []).map(x=>x.date).filter(Boolean).sort();
-        if(dates.length){ earnDates[sym] = dates[0]; renderHoldings(); renderEvents(); return; }
-      }
+        if(dates.length){ earnDates[sym] = dates[0]; got = true; break; }
+      }catch(e){ break; }
+    }
+    /* 2) 取れない場合: 過去の決算実績（無料）から次回を推定して「(予)」表示 */
+    if(!got && !earnDates[sym]){
+      try{
+        const res = await fetchTimeout(`https://finnhub.io/api/v1/stock/earnings?symbol=${encodeURIComponent(sym)}&token=${fhKey}`, 6000);
+        if(res.ok){
+          const j = await res.json();
+          const per = j?.[0]?.period;                     // 直近に報告済みの四半期末
+          if(per){
+            const d = parseYMD(per);
+            d.setMonth(d.getMonth()+3); d.setDate(d.getDate()+32);   // 次の四半期末 + 約1ヶ月後
+            while(daysUntil(ymd(d)) < 0) d.setMonth(d.getMonth()+3);
+            earnDates[sym] = ymd(d) + "?";
+            got = true;
+          }
+        }
+      }catch(e){}
+    }
+  }
+  /* 3) Yahoo quoteSummary（プロキシ経由・成功率は低い） */
+  if(!got){
+    try{
+      const j = await fetchJSON(`https://query1.finance.yahoo.com/v10/finance/quoteSummary/${encodeURIComponent(sym)}?modules=calendarEvents&formatted=false`);
+      const arr = j?.quoteSummary?.result?.[0]?.calendarEvents?.earnings?.earningsDate;
+      const ts = Array.isArray(arr) ? (arr[0]?.raw ?? arr[0]) : null;
+      if(ts){ earnDates[sym] = new Date(ts*1000).toISOString().slice(0,10); got = true; }
     }catch(e){}
   }
-  try{
-    const j = await fetchJSON(`https://query1.finance.yahoo.com/v10/finance/quoteSummary/${encodeURIComponent(sym)}?modules=calendarEvents&formatted=false`);
-    const arr = j?.quoteSummary?.result?.[0]?.calendarEvents?.earnings?.earningsDate;
-    const ts = Array.isArray(arr) ? (arr[0]?.raw ?? arr[0]) : null;
-    if(ts){
-      const dt = new Date(ts*1000);
-      earnDates[sym] = dt.toISOString().slice(0,10);
-      renderHoldings();
-    }
-  }catch(e){ /* シード値のまま */ }
+  if(got){ saveEarnCache(); renderHoldings(); renderEvents(); }
+  else{ setTimeout(()=>earnFetched.delete(sym), 300000); }   // 5分後の更新で自動再試行
 }
 
 /* 銘柄名の自動補完（ブックマーク再読込後など、名前が未知の銘柄用） */
@@ -802,13 +831,14 @@ function extCell(q){
   return `<div class="num"><span class="e-tag">${label}</span><span class="e-px">${fmtPrice(q.ext, q.sym)}</span></div>
     <div class="e-pct num ${cls(q.extPct)}">${arrow(q.extPct)} ${fmtPct(q.extPct)}</div>`;
 }
+const EARN_NA_TIP = "ETF・指数には決算はありません。個別株で表示されない場合は、⚙銘柄設定→一括編集で「GOOG@2026-07-28」のように手動指定できます（数分後に自動再試行もされます）";
 function earnCell(s){
   const raw = earnDates[s];
-  if(!raw) return `<span class="rm">—</span>`;
+  if(!raw) return `<span class="rm" title="${EARN_NA_TIP}">—</span>`;
   const est = raw.endsWith("?");
   const ds = raw.replace("?","");
   const days = daysUntil(ds);
-  if(days < 0) return `<span class="rm">—</span>`;
+  if(days < 0) return `<span class="rm" title="${EARN_NA_TIP}">—</span>`;
   const dt = parseYMD(ds);
   const label = `${dt.getMonth()+1}/${dt.getDate()}`;
   const badge = days===0 ? "本日!" : days===1 ? "明日" : days<=14 ? `あと${days}日` : "";
@@ -1208,6 +1238,7 @@ $("#modal-save").addEventListener("click", ()=>{
   holdings = [...new Set(wl)];
   fhKey = $("#api-key").value.trim().replace(/[^A-Za-z0-9_-]/g, "");
   try{ localStorage.setItem("fh_key", fhKey); }catch(e){}
+  earnFetched.clear();   // 設定変更後は決算日を必ず取り直す（キー追加後の再取得を保証）
   saveHoldings();
   $("#modal-bg").style.display = "none";
   refresh();
