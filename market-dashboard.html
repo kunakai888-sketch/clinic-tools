@@ -445,10 +445,11 @@ function parseHoldingsStr(str){
   return list;
 }
 function loadHoldings(){
-  /* 優先順: URL(ブックマーク) → ブラウザ保存 → 初期リスト */
-  const m = location.hash.match(/h=([^&]+)/);
-  if(m){
-    const list = parseHoldingsStr(decodeURIComponent(m[1]));
+  /* 優先順: URL(ブックマーク) → ブラウザ保存 → 初期リスト
+     ※誤って #h= が複数付いたURLでも、一番後ろ（最新）のリストを採用する */
+  const ms = [...location.hash.matchAll(/h=([^&#]+)/g)];
+  if(ms.length){
+    const list = parseHoldingsStr(decodeURIComponent(ms[ms.length-1][1]));
     if(list.length) return list;
   }
   try{
@@ -1222,6 +1223,15 @@ setTimeout(()=>{
       <a href="https://jp.investing.com/economic-calendar/" target="_blank" rel="noopener">Investing.com 経済指標カレンダー ↗</a> をご利用ください。</div>`;
   }
 }, 6000);
+
+/* URLの#部分が変わったら（リスト付きURLの貼り付けなど）自動で再読み込み */
+window.addEventListener("hashchange", ()=>{
+  if(!location.hash.includes("h=")) return;
+  holdings = loadHoldings();
+  saveHoldings();          // 正規化してブラウザにも保存
+  renderHoldings();
+  refresh();
+});
 
 /* ================= 起動 ================= */
 renderLinks();
