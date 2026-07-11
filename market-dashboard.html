@@ -341,13 +341,14 @@ footer{margin-top:26px;font-size:.66rem;color:var(--muted);line-height:1.7}
 <footer>
   データ: Yahoo Finance（15〜20分遅延の場合あり／先物・指数はほぼリアルタイム）・Finnhub（APIキー設定時の米国株）・CNN Fear &amp; Greed・Stooq（日本10年債）。
   イベント日程: FRB・BLS・日銀の公表スケジュール（2026年）に基づく。決算日の「(予)」は過去実績からの推定のため、企業の正式発表をご確認ください。
-  本アプリは情報提供のみを目的とし、投資助言ではありません。銘柄リストはURLに保存されます — 設定変更後はこのページをブックマークし直してください。
+  本アプリは情報提供のみを目的とし、投資助言ではありません。銘柄リスト・APIキー・決算日はこのブラウザ内に自動保存されます。
+  別の端末に銘柄リストを持ち込むときだけ、URL末尾に「#h=MU,TSM,…」を付けて開いてください（取り込み後は自動的に消えます）。
 </footer>
 
 <div id="modal-bg">
   <div id="modal">
     <h2>保有・ウォッチ銘柄の編集</h2>
-    <p>ティッカー・銘柄コード・会社名で検索して、候補をクリックすると追加されます（例: NVDA ／ 8035 ／ トヨタ ／ micron）。</p>
+    <p>ティッカー・銘柄コード・会社名で検索して、候補をクリックすると追加されます（例: NVDA ／ 8035 ／ トヨタ ／ micron）。保存すると自動的にこのブラウザに記録されます（ブックマークし直す必要はありません）。</p>
     <div class="search-wrap">
       <input id="sym-search" type="text" autocomplete="off" placeholder="🔍 銘柄を検索して追加（Enterで先頭候補を追加）">
       <div id="search-results"></div>
@@ -376,7 +377,7 @@ footer{margin-top:26px;font-size:.66rem;color:var(--muted);line-height:1.7}
 <script>
 "use strict";
 /* ================= 設定 ================= */
-const APP_VER = "v13";   // 更新のたびに数字が上がります。サイトの表示と一致するか確認に使ってください
+const APP_VER = "v14";   // 更新のたびに数字が上がります。サイトの表示と一致するか確認に使ってください
 const MOCK = new URLSearchParams(location.search).has("mock");
 
 const NAMES = {
@@ -463,7 +464,23 @@ function loadHoldings(){
   const ms = [...location.hash.matchAll(/h=([^&#]+)/g)];
   if(ms.length){
     const list = parseHoldingsStr(decodeURIComponent(ms[ms.length-1][1]));
-    if(list.length) return list;
+    if(list.length){
+      /* ブラウザに別のリストが保存済みなら、黙って上書きせずに確認する
+         （古い#付きブックマークで最新リストが巻き戻る事故の防止） */
+      let saved = "";
+      try{ saved = localStorage.getItem("mkdb_holdings") || ""; }catch(e){}
+      if(saved){
+        const savedList = parseHoldingsStr(saved);
+        if(savedList.length && savedList.join(",") !== list.join(",")){
+          const useUrl = confirm(
+            `このURLには銘柄リスト（${list.length}銘柄）が含まれていますが、\n` +
+            `このブラウザには別のリスト（${savedList.length}銘柄）が保存されています。\n\n` +
+            `OK: URLのリストに置き換える\nキャンセル: 保存済みのリストを使う（おすすめ）`);
+          if(!useUrl) return savedList;
+        }
+      }
+      return list;
+    }
   }
   try{
     const saved = localStorage.getItem("mkdb_holdings");
@@ -490,11 +507,14 @@ function loadKey(){
 let fhKey = loadKey();
 function saveHoldings(){
   const parts = holdings.map(s => manualEarn[s] ? `${s}@${manualEarn[s]}` : s).join(",");
-  location.hash = "h=" + encodeURIComponent(parts);             // キーはURLに含めない
-  try{ localStorage.setItem("mkdb_holdings", parts); }catch(e){} // ブラウザにも保存（ファイル更新後も引き継がれる）
+  try{ localStorage.setItem("mkdb_holdings", parts); }catch(e){}   // 保存先はブラウザのみ
+  /* URLの#部分は「リストの持ち込み用」なので、取り込んだら消してアドレスを常に一定に保つ */
+  if(location.hash){
+    try{ history.replaceState(null, "", location.pathname + location.search); }catch(e){}
+  }
 }
-/* 旧URLのキー除去 & ブラウザ保存から復元した場合のURL反映 */
-if(location.hash.includes("k=") || !location.hash.includes("h=")) saveHoldings();
+/* 起動時に正規化: #付きURLで開いた場合はリストを取り込んでからURLをクリーンにする */
+saveHoldings();
 /* 米国株・米国ETF判定（Finnhub無料枠で取れる範囲） */
 const isUS = sym => /^[A-Z]{1,5}$/.test(sym);
 function fetchTimeout(url, ms){
