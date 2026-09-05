@@ -387,7 +387,7 @@ footer{margin-top:26px;font-size:.66rem;color:var(--muted);line-height:1.7}
 <script>
 "use strict";
 /* ================= 設定 ================= */
-const APP_VER = "v21";   // 更新のたびに数字が上がります。サイトの表示と一致するか確認に使ってください
+const APP_VER = "v22";   // 更新のたびに数字が上がります。サイトの表示と一致するか確認に使ってください
 const MOCK = new URLSearchParams(location.search).has("mock");
 
 const NAMES = {
@@ -566,13 +566,12 @@ async function fillSpark(sym){
 /* ================= データ取得層 ================= */
 /* wrapped=true のプロキシはJSONを {contents: "..."} で包んで返す */
 const PROXIES = [
-  {u: u => u},                                                                      // 直接（CORS拡張やローカル環境用）
-  {u: u => "https://corsproxy.io/?url=" + encodeURIComponent(u)},
-  {u: u => "https://api.allorigins.win/raw?url=" + encodeURIComponent(u)},
   {u: u => "https://api.codetabs.com/v1/proxy?quest=" + encodeURIComponent(u)},
-  {u: u => "https://api.allorigins.win/get?url=" + encodeURIComponent(u), wrapped: true}
+  {u: u => "https://api.allorigins.win/raw?url=" + encodeURIComponent(u)},
+  {u: u => "https://api.allorigins.win/get?url=" + encodeURIComponent(u), wrapped: true},
+  {u: u => u}                                                                       // 直接（CORS拡張やローカル環境用）
 ];
-let goodProxy = 1; // 直近成功したプロキシを優先
+let goodProxy = 0; // 直近成功したプロキシを優先
 const proxyCool = new Array(PROXIES.length).fill(0);   // 失敗したプロキシは60秒休ませる
 
 /* データ源の状態（画面の「データ源」表示と診断用） */
@@ -605,12 +604,14 @@ function proxyOrder(){
   const alive = [], cooled = [];
   for(let i=0;i<PROXIES.length;i++) (proxyCool[i]>now ? cooled : alive).push(i);
   alive.sort((a,b)=>(a===goodProxy?-1:0)-(b===goodProxy?-1:0));
-  return alive.length ? alive.concat(cooled) : cooled;   // 全滅時は冷却中も試す
+  /* 一度失敗した中継を全銘柄が繰り返し待つと、初回表示が数分固まってしまう。
+     生きている候補がある間は冷却中を飛ばし、全滅時だけ再試行する。 */
+  return alive.length ? alive : cooled;
 }
 async function fetchJSON(url){
   let lastErr;
   for(const i of proxyOrder()){
-    try{ return JSON.parse(await proxyFetch(url, i, 10000)); }
+    try{ return JSON.parse(await proxyFetch(url, i, 7000)); }
     catch(e){ lastErr = e; }
   }
   throw lastErr;
@@ -619,7 +620,7 @@ async function fetchJSON(url){
 async function fetchText(url){
   let lastErr;
   for(const i of proxyOrder()){
-    try{ return await proxyFetch(url, i, 10000); }
+    try{ return await proxyFetch(url, i, 7000); }
     catch(e){ lastErr = e; }
   }
   throw lastErr;
@@ -760,7 +761,8 @@ async function fetchYahooQuote(sym){
 
 const quoteCache = {};
 async function fetchAll(symbols, onEach){
-  const CONC = 5;
+  /* CodeTabs無料枠は5 req/sec。大量同時アクセスを避けて429と中継全滅を防ぐ。 */
+  const CONC = 2;
   let idx = 0;
   async function worker(){
     while(idx < symbols.length){
