@@ -387,7 +387,7 @@ footer{margin-top:26px;font-size:.66rem;color:var(--muted);line-height:1.7}
 <script>
 "use strict";
 /* ================= 設定 ================= */
-const APP_VER = "v22";   // 更新のたびに数字が上がります。サイトの表示と一致するか確認に使ってください
+const APP_VER = "v23";   // 更新のたびに数字が上がります。サイトの表示と一致するか確認に使ってください
 const MOCK = new URLSearchParams(location.search).has("mock");
 
 const NAMES = {
@@ -606,7 +606,7 @@ function proxyOrder(){
   alive.sort((a,b)=>(a===goodProxy?-1:0)-(b===goodProxy?-1:0));
   /* 一度失敗した中継を全銘柄が繰り返し待つと、初回表示が数分固まってしまう。
      生きている候補がある間は冷却中を飛ばし、全滅時だけ再試行する。 */
-  return alive.length ? alive : cooled;
+  return alive; // 全滅時は冷却期間が終わるまで再送しない
 }
 async function fetchJSON(url){
   let lastErr;
@@ -759,7 +759,24 @@ async function fetchYahooQuote(sym){
   };
 }
 
-const quoteCache = {};
+const quoteCache = Object.create(null);
+/* 前回取得値を即表示。ただし時刻を明示し、最新値として扱わない。 */
+if(!MOCK){
+  try{
+    const saved = JSON.parse(localStorage.getItem("mkdb_quotes_v1") || "{}");
+    for(const [s,q] of Object.entries(saved)){
+      if(q && q.sym === s && Number.isFinite(q.price) && q.price > 0 &&
+         Number.isFinite(q.fetchedAt) && Date.now()-q.fetchedAt >= 0 &&
+         Date.now()-q.fetchedAt < 7*86400000){
+        quoteCache[s] = {...q, stale:true};
+      }
+    }
+  }catch(e){}
+}
+function saveQuotes(){
+  if(MOCK) return;
+  try{ localStorage.setItem("mkdb_quotes_v1", JSON.stringify(quoteCache)); }catch(e){}
+}
 async function fetchAll(symbols, onEach){
   /* CodeTabs無料枠は5 req/sec。大量同時アクセスを避けて429と中継全滅を防ぐ。 */
   const CONC = 2;
@@ -768,7 +785,10 @@ async function fetchAll(symbols, onEach){
     while(idx < symbols.length){
       const s = symbols[idx++];
       try{
-        quoteCache[s] = await fetchQuote(s);
+        const q = await fetchQuote(s);
+        if(!Number.isFinite(q.price) || q.price <= 0) throw new Error("invalid price");
+        quoteCache[s] = {...q, fetchedAt:Date.now(), stale:false};
+        saveQuotes();
       }catch(e){
         quoteCache[s] = quoteCache[s] || {sym:s, error:true};
         quoteCache[s].stale = true;
@@ -1062,7 +1082,7 @@ function renderHoldings(){
     const q = quoteCache[s];
     if(!q || (q.error && q.price==null))
       return `<tr><td class="sym-cell"><div class="s">${esc(s)}</div><div class="n">${esc(nameOf(s))}</div></td>
-        <td colspan="7" class="skel" style="text-align:left">データ取得失敗（ティッカーをご確認ください）</td>
+        <td colspan="7" class="skel" style="text-align:left">${q?.error ? "取得できませんでした（次回更新で再試行）" : "取得待ち…"}</td>
         <td><button class="del-btn" data-del="${esc(s)}" title="削除">✕</button></td></tr>`;
     const dir = q.pct;
     let rangeCell = "--";
@@ -1083,7 +1103,8 @@ function renderHoldings(){
     return `<tr>
       <td class="sym-cell"><a href="${linkOf(s)}" target="_blank" rel="noopener" style="color:inherit"><div class="s">${esc(s)}</div><div class="n">${esc(nameOf(s))}</div></a>
         <div class="mini-links">${mini}</div></td>
-      <td class="px num">${fmtPrice(q.price,q.sym)}${q.currency==="JPY"?"<span class='rm'> 円</span>":""}${q.stale?'<span class="rm">†</span>':""}</td>
+      <td class="px num">${fmtPrice(q.price,q.sym)}${q.currency==="JPY"?"<span class='rm'> 円</span>":""}
+        ${q.fetchedAt ? '<div class="rm">'+(q.stale ? '前回値・' : '取得 ') + esc(new Date(q.fetchedAt).toLocaleString("ja-JP"))+'</div>' : ""}</td>
       <td class="num ${cls(dir)}"><b>${arrow(dir)} ${fmtPct(q.pct)}</b> <span class="chg-sub">(${fmtChg(q.chg,q.sym)})</span></td>
       <td class="ext-cell">${extCell(q)}</td>
       <td class="num">${perCell(s, q)}</td>
@@ -1260,12 +1281,14 @@ async function refresh(){
   if(refreshing) return;
   refreshing = true;
   $("#refresh-btn").textContent = "⟳ 更新中…";
-  const all = [...new Set([...FUTURES, ...holdings, ...SECTORS, ...WORLD])];
+  const all = [...new Set([...holdings, ...FUTURES, ...SECTORS, ...WORLD])];
+  try{
   let done = 0, failed = 0;
   await fetchAll(all, s=>{
     done++;
-    if(quoteCache[s]?.error && quoteCache[s]?.price==null) failed++;
-    if(done % 6 === 0){ renderFutures(); renderHoldings(); renderHeatmap(); renderWorld(); }
+    if(quoteCache[s]?.stale || quoteCache[s]?.error) failed++;
+    renderFutures(); renderHoldings(); renderHeatmap(); renderWorld();
+    updateSrcStat();
   });
   renderFutures(); renderHoldings(); renderHeatmap(); renderWorld(); renderEvents();
   /* 株価が取れている時だけ、決算日・PERなど付随データの取得に進む
@@ -1276,11 +1299,11 @@ async function refresh(){
     holdings.forEach(fetchPER);
     holdings.forEach(ensureName);
   }
-  try{ renderFG(await fetchFearGreed()); }catch(e){ renderFG(null, e); }
+  fetchFearGreed().then(q=>renderFG(q)).catch(e=>renderFG(null, e));
   const banner = $("#err-banner");
   if(failed >= all.length){
     banner.style.display = "block";
-    banner.innerHTML = "⚠ 株価データを取得できませんでした。中継サーバーの混雑・遮断が原因のことが多く、数分後に自動復旧します。"
+    banner.innerHTML = "⚠ 株価データを取得できませんでした。通信先の混雑や制限が考えられます。次回更新で再試行します。"
       + "続く場合は「⚙ 銘柄設定 → 接続テスト」で原因を確認してください。";
   } else if(failed > all.length * 0.3){
     banner.style.display = "block";
@@ -1288,9 +1311,14 @@ async function refresh(){
   } else { banner.style.display = "none"; }
   updateSrcStat();
   $("#last-upd").textContent = new Date().toLocaleTimeString("ja-JP");
+  }catch(e){
+    $("#err-banner").style.display = "block";
+    $("#err-banner").textContent = "更新に失敗しました。前回値の時刻を確認してください。次回更新で再試行します。";
+  }finally{
   $("#refresh-btn").textContent = "⟳ 今すぐ更新";
   refreshing = false;
   resetCountdown();
+  }
 }
 
 function updateSrcStat(){
@@ -1555,6 +1583,7 @@ $("#app-ver").textContent = APP_VER;
 renderLinks();
 renderEvents();
 updateClocks();
+renderHoldings();
 setInterval(tick, 1000);
 refresh();
 </script>
