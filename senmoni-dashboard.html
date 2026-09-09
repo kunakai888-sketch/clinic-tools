@@ -279,53 +279,60 @@ const DEFAULT_DATA = {
     },
     {
       id: "jsn", color: "--q-jsn",
-      name: "腎臓専門医",
+      name: "腎臓指導医",
       society: "日本腎臓学会",
       cycleYears: 5,
       requiredTotal: 50,
       renewalDate: "",
       feePaidDate: "",
       fields: [
-        { id: "jsnown", label: "腎臓学会企画の単位 (25以上必須)", min: 25, value: 0 },
-        { id: "other", label: "その他 (関連学会・論文など)", min: 0, value: 0 }
+        { id: "jsnown", label: "腎臓専門医維持：腎臓学会企画の単位 (25以上必須)", min: 25, value: 0 },
+        { id: "other", label: "腎臓専門医維持：その他 (関連学会・論文など)", min: 0, value: 0 }
       ],
       musts: [
-        { id: "m1", label: "学術総会 または 東部・西部学術大会に5年間で1回以上出席", done: false }
+        { id: "m1", label: "腎臓専門医資格を維持（5年間50単位、うち腎臓学会企画25単位以上）", done: false },
+        { id: "m2", label: "学術総会 または 東部・西部学術大会に5年間で1回以上出席（専門医更新要件）", done: false },
+        { id: "m3", label: "5年に1回以上、厚労省・基本領域学会・日本腎臓学会主催の指導医講習会を修了", done: false },
+        { id: "m4", label: "腎臓指導医として十分な指導経験を有する", done: false },
+        { id: "m5", label: "選択要件：司会・座長・発表等の主導的関与 または 日本腎臓学会での教育活動を満たす", done: false }
       ],
-      window: "更新年度の前年12月頃に更新申請書類が郵送 → 期日までに返送、4/1付更新",
+      window: "指導医は5年ごとに更新。更新対象者には前年12月頃に申請書類が郵送され、審査後4/1付で更新。",
       creditGuide: [
+        "専門医維持：5年間50単位（うち日本腎臓学会企画25単位以上）",
         "学術総会 参加: 10単位 (+教育講演受講5単位 = 計15単位)",
         "東部・西部学術大会 参加: 6単位 (+教育講演4単位 = 計10単位)",
-        "セルフトレーニング問題: 5単位 / 基本領域学会(内科学会)年次集会: 5単位 / 関連学会年次集会: 4単位",
-        "学会誌掲載: 英文筆頭10・共著5 / 和文筆頭8・共著4 / 承認研究会: 1単位(上限 年2・5年10)"
+        "セルフトレーニング問題: 5単位 / 基本領域学会年次集会: 5単位 / 関連学会年次集会: 4単位"
       ],
-      note: "機構サブスペ新制度への更新乗り換えは「検討中」(学会公式Q&A)。当面は学会基準 (5年50単位) で更新。",
-      sources: [["専門医制度(腎臓学会)", "https://jsn.or.jp/medic/specialistsystem/specialist/"], ["所定単位表2024", "https://cdn.jsn.or.jp/data/tanihyo-2024.pdf"]]
+      note: "指導医更新そのものは単位制ではなく、専門医資格維持＋指導医講習会＋指導経験＋選択要件が中心。画面の50単位欄は、指導医の前提となる腎臓専門医資格を維持するための単位を管理するもの。",
+      sources: [["指導医更新要件Q&A(腎臓学会)", "https://cdn.jsn.or.jp/medic/specialistsystem/j-osler/faq.php"], ["腎臓専門医資格更新 所定単位表", "https://cdn.jsn.or.jp/data/tanihyo-2024.pdf"], ["専門医制度(腎臓学会)", "https://jsn.or.jp/medic/specialistsystem/specialist/"]]
     },
     {
       id: "jsdt", color: "--q-jsdt",
-      name: "透析専門医",
+      name: "透析指導医",
       society: "日本透析医学会",
       cycleYears: 5,
       requiredTotal: 50,
       renewalDate: "",
       feePaidDate: "",
       fields: [
-        { id: "total", label: "取得単位 合計 (eラーニングは上限25)", min: 50, value: 0 }
+        { id: "total", label: "指導医更新：取得単位 合計", min: 50, value: 0 }
       ],
       musts: [
-        { id: "m1", label: "年次学術集会に5年間で2回以上参加", done: false },
-        { id: "m2", label: "セルフトレーニング問題に5年間で1回以上正答", done: false }
+        { id: "m1", label: "透析専門医として登録されている", done: false },
+        { id: "m2", label: "認定期間5年間で年次学術集会に2回以上参加", done: false },
+        { id: "m3", label: "認定期間5年間でセルフトレーニング問題に1回以上正答", done: false },
+        { id: "m4", label: "認定期間5年間のうち通算3年以上、主として透析療法に従事", done: false }
       ],
-      window: "有効期限満了日の前1年以内に更新申請 (参加証明等を添付)",
+      window: "指導医認定証の有効期限満了日の前1年以内に更新申請。",
       creditGuide: [
+        "指導医更新：認定期間5年間で50単位",
         "年次学術集会 参加: 10単位 (筆頭発表+20 / 共同+5)",
         "年次学術集会 教育講演(卒後生涯教育プログラム): 5単位",
         "日本腎臓学会総会: 5単位 / 日本医学会総会: 10単位 / 国際学会: 5単位",
         "日本腹膜透析医学会学術集会など委員会承認の全国規模学術集会: 3単位"
       ],
-      note: "eラーニング・生涯教育プログラムでの取得は更新期間中 上限25単位。",
-      sources: [["専門医制度(透析医学会)", "https://www.jsdt.or.jp/specialist/2102.html"]]
+      note: "日本透析医学会の指導医更新は、専門医としての登録、5年間50単位、年次学術集会2回以上、セルフトレーニング1回以上正答、通算3年以上の透析療法従事が要件。勤務日数の換算規定あり。",
+      sources: [["専門医制度に関する申請要項(透析医学会)", "https://www.jsdt.or.jp/specialist/2112.html"], ["専門医制度規則・施行細則", "https://www.jsdt.or.jp/specialist/"]]
     },
     {
       id: "jsh", color: "--q-jsh",
