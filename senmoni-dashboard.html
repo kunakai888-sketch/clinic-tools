@@ -1,1 +1,800 @@
-<!doctype html><meta charset=utf-8><script>(async()=>{const b=Uint8Array.from(atob('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'),c=>c.charCodeAt(0));const t=await new Response(new Blob([b]).stream().pipeThrough(new DecompressionStream('gzip'))).text();document.open();document.write(t);document.close()})()</script>
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>専門医資格 更新単位ダッシュボード</title>
+<style>
+  :root {
+    color-scheme: light;
+    --surface-1: #fcfcfb;
+    --page: #f9f9f7;
+    --text-primary: #0b0b0b;
+    --text-secondary: #52514e;
+    --text-muted: #898781;
+    --grid: #e1e0d9;
+    --baseline: #c3c2b7;
+    --border: rgba(11,11,11,0.10);
+    --good: #0ca30c;
+    --good-text: #006300;
+    --warning: #fab219;
+    --serious: #ec835a;
+    --critical: #d03b3b;
+    --q-naika: #2a78d6;
+    --q-jsn: #eb6834;
+    --q-jsdt: #1baf7a;
+    --q-jsh: #eda100;
+    --q-jspd: #e87ba4;
+    --q-jds: #008300;
+    --q-endo: #4a3aa7;
+  }
+  :root[data-theme="dark"] {
+    color-scheme: dark;
+    --surface-1: #1a1a19;
+    --page: #0d0d0d;
+    --text-primary: #ffffff;
+    --text-secondary: #c3c2b7;
+    --text-muted: #898781;
+    --grid: #2c2c2a;
+    --baseline: #383835;
+    --border: rgba(255,255,255,0.10);
+    --good-text: #0ca30c;
+    --q-naika: #3987e5;
+    --q-jsn: #d95926;
+    --q-jsdt: #199e70;
+    --q-jsh: #c98500;
+    --q-jspd: #d55181;
+    --q-jds: #008300;
+    --q-endo: #9085e9;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      color-scheme: dark;
+      --surface-1: #1a1a19;
+      --page: #0d0d0d;
+      --text-primary: #ffffff;
+      --text-secondary: #c3c2b7;
+      --grid: #2c2c2a;
+      --baseline: #383835;
+      --border: rgba(255,255,255,0.10);
+      --good-text: #0ca30c;
+      --q-naika: #3987e5;
+      --q-jsn: #d95926;
+      --q-jsdt: #199e70;
+      --q-jsh: #c98500;
+      --q-jspd: #d55181;
+      --q-jds: #008300;
+      --q-endo: #9085e9;
+    }
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    background: var(--page);
+    color: var(--text-primary);
+    font-family: system-ui, -apple-system, "Segoe UI", "Hiragino Sans", "Noto Sans JP", sans-serif;
+    font-size: 14px;
+    line-height: 1.55;
+  }
+  .wrap { max-width: 1160px; margin: 0 auto; padding: 20px 16px 64px; }
+  header.top {
+    display: flex; flex-wrap: wrap; gap: 12px; align-items: baseline;
+    justify-content: space-between; margin-bottom: 6px;
+  }
+  h1 { font-size: 20px; margin: 0; font-weight: 700; }
+  .sub { color: var(--text-secondary); font-size: 12.5px; margin: 2px 0 16px; }
+  .toolbar { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; }
+  button, .btn {
+    font: inherit; font-size: 12.5px; padding: 5px 12px; border-radius: 7px;
+    border: 1px solid var(--border); background: var(--surface-1);
+    color: var(--text-primary); cursor: pointer;
+  }
+  button:hover { border-color: var(--baseline); }
+  /* ---- stat tiles ---- */
+  .tiles { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 10px; margin-bottom: 20px; }
+  .tile {
+    background: var(--surface-1); border: 1px solid var(--border);
+    border-radius: 10px; padding: 12px 14px;
+  }
+  .tile .lbl { font-size: 12px; color: var(--text-secondary); }
+  .tile .val { font-size: 26px; font-weight: 600; margin-top: 2px; }
+  .tile .note { font-size: 11.5px; color: var(--text-muted); margin-top: 2px; }
+  /* ---- cards ---- */
+  h2 { font-size: 15px; margin: 26px 0 10px; font-weight: 700; }
+  .cards { display: grid; grid-template-columns: repeat(auto-fit, minmax(345px, 1fr)); gap: 12px; }
+  .card {
+    background: var(--surface-1); border: 1px solid var(--border);
+    border-radius: 12px; padding: 14px 16px 12px;
+    border-top: 3px solid var(--qc, var(--baseline));
+  }
+  .card h3 { margin: 0; font-size: 14.5px; display: flex; align-items: center; gap: 7px; }
+  .qdot { width: 10px; height: 10px; border-radius: 50%; background: var(--qc); flex: none; }
+  .society { font-size: 11.5px; color: var(--text-muted); margin: 1px 0 10px 17px; }
+  .rowline { display: flex; gap: 10px; flex-wrap: wrap; align-items: center; margin: 8px 0; }
+  .rowline label { font-size: 12px; color: var(--text-secondary); }
+  input[type="number"], input[type="date"], input[type="text"] {
+    font: inherit; font-size: 13px; padding: 3px 7px; border-radius: 6px;
+    border: 1px solid var(--baseline); background: var(--surface-1); color: var(--text-primary);
+    width: 90px;
+  }
+  input[type="date"] { width: 150px; }
+  .bigcount { font-size: 22px; font-weight: 600; }
+  .bigcount small { font-size: 13px; font-weight: 400; color: var(--text-secondary); }
+  /* progress bar */
+  .bar {
+    height: 10px; border-radius: 5px; overflow: hidden; margin: 4px 0 2px;
+    background: color-mix(in srgb, var(--qc) 16%, var(--surface-1));
+  }
+  .bar > i {
+    display: block; height: 100%; background: var(--qc);
+    border-radius: 0 5px 5px 0; min-width: 0; transition: width .25s;
+  }
+  .bar.mini { height: 6px; margin: 2px 0; }
+  .marker { position: relative; height: 0; }
+  .marker > s {
+    position: absolute; top: -12px; width: 2px; height: 14px;
+    background: var(--text-muted); opacity: .8;
+  }
+  .fieldrow { display: flex; align-items: center; gap: 8px; margin: 5px 0; font-size: 12.5px; }
+  .fieldrow .flabel { flex: 1; color: var(--text-secondary); min-width: 0; }
+  .fieldrow input { width: 64px; }
+  .fieldrow .fmin { color: var(--text-muted); font-size: 11.5px; width: 84px; text-align: right; }
+  /* status chip: icon + label, never color alone */
+  .chip {
+    display: inline-flex; align-items: center; gap: 5px; font-size: 12px;
+    padding: 2px 9px; border-radius: 999px; border: 1px solid var(--border);
+    font-weight: 600;
+  }
+  .chip .ic { font-size: 11px; }
+  .chip.good { color: var(--good-text); }
+  .chip.warning { color: color-mix(in srgb, var(--warning) 70%, var(--text-primary)); }
+  .chip.serious { color: color-mix(in srgb, var(--serious) 75%, var(--text-primary)); }
+  .chip.critical { color: var(--critical); }
+  .chip.neutral { color: var(--text-secondary); font-weight: 400; }
+  .countdown { font-size: 12.5px; color: var(--text-secondary); }
+  .countdown b { color: var(--text-primary); }
+  .musts { margin: 8px 0 2px; padding: 8px 10px; border: 1px solid var(--grid); border-radius: 8px; }
+  .musts .mtitle { font-size: 11.5px; color: var(--text-muted); margin-bottom: 4px; }
+  .musts label { display: flex; gap: 7px; align-items: flex-start; font-size: 12.5px; margin: 3px 0; cursor: pointer; }
+  .musts input { margin-top: 2px; }
+  details { margin-top: 8px; }
+  summary { cursor: pointer; font-size: 12px; color: var(--text-secondary); }
+  details .inner { font-size: 12px; color: var(--text-secondary); padding: 6px 2px 2px; }
+  details .inner ul { margin: 4px 0; padding-left: 18px; }
+  details .inner a { color: var(--q-naika); }
+  .warnnote {
+    font-size: 12px; padding: 7px 10px; border-radius: 8px; margin-top: 8px;
+    border: 1px solid var(--border);
+    background: color-mix(in srgb, var(--warning) 12%, var(--surface-1));
+  }
+  textarea.memo {
+    width: 100%; font: inherit; font-size: 12.5px; margin-top: 8px;
+    border: 1px solid var(--grid); border-radius: 7px; padding: 6px 8px;
+    background: var(--surface-1); color: var(--text-primary); resize: vertical; min-height: 34px;
+  }
+  /* ---- events ---- */
+  .filters { display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 10px; }
+  .fchip {
+    display: inline-flex; align-items: center; gap: 6px; font-size: 12px;
+    padding: 3px 11px; border-radius: 999px; border: 1px solid var(--baseline);
+    background: var(--surface-1); cursor: pointer; color: var(--text-secondary);
+  }
+  .fchip.on { border-color: var(--text-primary); color: var(--text-primary); font-weight: 600; }
+  .fchip .qdot { width: 8px; height: 8px; }
+  table.events { width: 100%; border-collapse: collapse; background: var(--surface-1); border: 1px solid var(--border); border-radius: 10px; overflow: hidden; }
+  table.events th {
+    text-align: left; font-size: 11.5px; color: var(--text-muted); font-weight: 600;
+    padding: 8px 10px; border-bottom: 1px solid var(--grid);
+  }
+  table.events td { padding: 8px 10px; border-bottom: 1px solid var(--grid); font-size: 12.5px; vertical-align: top; }
+  table.events tr:last-child td { border-bottom: none; }
+  td.date { white-space: nowrap; font-variant-numeric: tabular-nums; color: var(--text-secondary); }
+  td.date b { color: var(--text-primary); }
+  .soon { font-size: 11px; color: var(--critical); font-weight: 600; }
+  .qtag {
+    display: inline-flex; align-items: center; gap: 5px; font-size: 11.5px;
+    padding: 1px 8px; border-radius: 999px; border: 1px solid var(--grid);
+    margin: 1px 3px 1px 0; white-space: nowrap; color: var(--text-secondary);
+  }
+  .credhint { color: var(--text-muted); }
+  .footer { margin-top: 30px; font-size: 11.5px; color: var(--text-muted); border-top: 1px solid var(--grid); padding-top: 12px; }
+  .footer a { color: var(--q-naika); }
+  @media print {
+    .toolbar, .filters, details, textarea.memo { display: none; }
+    body { background: #fff; }
+    .card, .tile, table.events { border-color: #ccc; }
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header class="top">
+    <div>
+      <h1>専門医資格 更新単位ダッシュボード</h1>
+      <div class="sub" id="subline"></div>
+    </div>
+    <div class="toolbar">
+      <button id="btnTheme" title="ライト/ダーク切替">◐ 表示切替</button>
+      <button id="btnSave" title="このブラウザに入力内容を保存">💾 保存</button>
+      <button id="btnExport">⬇ データ書き出し (JSON)</button>
+      <button id="btnImport">⬆ データ読み込み</button>
+      <input type="file" id="fileImport" accept=".json" style="display:none">
+      <button onclick="window.print()">🖨 印刷</button>
+    </div>
+  </header>
+
+  <div class="tiles" id="tiles"></div>
+
+  <h2>保有資格の単位進捗</h2>
+  <div class="cards" id="cards"></div>
+
+  <h2>学会・講演会カレンダー <span style="font-weight:400;font-size:12px;color:var(--text-muted)">(単位取得チャンス)</span></h2>
+  <div class="filters" id="filters"></div>
+  <table class="events">
+    <thead><tr><th style="width:120px">日程</th><th>学会・講演会</th><th style="width:170px">開催地</th><th style="width:260px">対象資格・単位目安</th></tr></thead>
+    <tbody id="evbody"></tbody>
+  </table>
+  <div style="margin-top:8px"><label style="font-size:12px;color:var(--text-secondary)"><input type="checkbox" id="showPast"> 終了した予定も表示</label></div>
+
+  <div class="footer">
+    <p><b>データの保存について:</b> 入力後に上部の「💾 保存」を押すと、このブラウザ内に入力内容を保存できます。次回このページを開いた際に自動で復元されます。端末変更やバックアップには「データ書き出し」でJSONファイルを保存し、「データ読み込み」で復元してください。書き出されるのは入力値だけなので、<b>ダッシュボード本体が新しいバージョンに更新されても、同じJSONを読み込めば入力し直しは不要</b>です(新しい学会予定・要件はそのまま反映されます)。Claudeに新しい単位数を伝えて、入力済みの最新版を再作成してもらうこともできます。</p>
+    <p><b>免責:</b> 必要単位数・更新要件は2026年8月時点の各学会公式サイトの調査に基づく参考値です。制度改定(特に機構認定への移行)が進行中のため、実際の更新手続き前に必ず各学会の会員ページ・最新規程でご確認ください。</p>
+    <p id="srclist"></p>
+  </div>
+</div>
+
+<script>
+"use strict";
+/* ================= デフォルトデータ (2026年8月 各学会公式サイト調査に基づく) ================= */
+const DEFAULT_DATA = {
+  version: 1,
+  savedAt: null,
+  quals: [
+    {
+      id: "naika", color: "--q-naika",
+      name: "総合内科専門医",
+      society: "日本内科学会",
+      cycleYears: 5,
+      requiredTotal: 75,
+      renewalDate: "",
+      feePaidDate: "",
+      fields: [
+        { id: "gakkai", label: "内科学会主催企画の単位 (50以上必須)", min: 50, value: 0 },
+        { id: "other", label: "学会以外の企画 (上限25)", min: 0, max: 25, value: 0 }
+      ],
+      musts: [
+        { id: "m1", label: "総会・講演会 / 生涯教育講演会A・B・C / 内科学の展望 のいずれかに1回以上参加", done: false },
+        { id: "m2", label: "セルフトレーニング問題で1回以上単位取得", done: false },
+        { id: "m3", label: "更新料 5,000円 納入", done: false }
+      ],
+      window: "更新案内は12月下旬郵送 → 手続き受付は12月下旬〜3月末",
+      creditGuide: [
+        "総会・講演会 参加: 15単位 / 生涯教育講演会A・B・C: 10単位 / 内科学の展望: 10単位",
+        "セルフトレーニング問題(正解率60%以上): 5単位",
+        "支部主催生涯教育講演会・地方会: 各5単位 / 日本医学会総会: 10単位 / 指定15学会総会: 5単位",
+        "生涯教育講演会オンデマンド視聴(設問正解60%以上): 5単位/回"
+      ],
+      note: "学会認定の従来制度 (5年75単位)。2025年4月から機構認定「内科専門医」(50単位/5年) + 学会認定「新総合内科専門医」(+25単位) の二階建て新制度が開始。ご自身がどちらの制度で更新するかを学会Personal Webで要確認。",
+      sources: [["更新基準(内科学会)", "https://www.naika.or.jp/nintei/koshin/f_koshin/"], ["新専門医制度", "https://www.naika.or.jp/shin-senmonni/"]]
+    },
+    {
+      id: "jsn", color: "--q-jsn",
+      name: "腎臓専門医",
+      society: "日本腎臓学会",
+      cycleYears: 5,
+      requiredTotal: 50,
+      renewalDate: "",
+      feePaidDate: "",
+      fields: [
+        { id: "jsnown", label: "腎臓学会企画の単位 (25以上必須)", min: 25, value: 0 },
+        { id: "other", label: "その他 (関連学会・論文など)", min: 0, value: 0 }
+      ],
+      musts: [
+        { id: "m1", label: "学術総会 または 東部・西部学術大会に5年間で1回以上出席", done: false }
+      ],
+      window: "更新年度の前年12月頃に更新申請書類が郵送 → 期日までに返送、4/1付更新",
+      creditGuide: [
+        "学術総会 参加: 10単位 (+教育講演受講5単位 = 計15単位)",
+        "東部・西部学術大会 参加: 6単位 (+教育講演4単位 = 計10単位)",
+        "セルフトレーニング問題: 5単位 / 基本領域学会(内科学会)年次集会: 5単位 / 関連学会年次集会: 4単位",
+        "学会誌掲載: 英文筆頭10・共著5 / 和文筆頭8・共著4 / 承認研究会: 1単位(上限 年2・5年10)"
+      ],
+      note: "機構サブスペ新制度への更新乗り換えは「検討中」(学会公式Q&A)。当面は学会基準 (5年50単位) で更新。",
+      sources: [["専門医制度(腎臓学会)", "https://jsn.or.jp/medic/specialistsystem/specialist/"], ["所定単位表2024", "https://cdn.jsn.or.jp/data/tanihyo-2024.pdf"]]
+    },
+    {
+      id: "jsdt", color: "--q-jsdt",
+      name: "透析専門医",
+      society: "日本透析医学会",
+      cycleYears: 5,
+      requiredTotal: 50,
+      renewalDate: "",
+      feePaidDate: "",
+      fields: [
+        { id: "total", label: "取得単位 合計 (eラーニングは上限25)", min: 50, value: 0 }
+      ],
+      musts: [
+        { id: "m1", label: "年次学術集会に5年間で2回以上参加", done: false },
+        { id: "m2", label: "セルフトレーニング問題に5年間で1回以上正答", done: false }
+      ],
+      window: "有効期限満了日の前1年以内に更新申請 (参加証明等を添付)",
+      creditGuide: [
+        "年次学術集会 参加: 10単位 (筆頭発表+20 / 共同+5)",
+        "年次学術集会 教育講演(卒後生涯教育プログラム): 5単位",
+        "日本腎臓学会総会: 5単位 / 日本医学会総会: 10単位 / 国際学会: 5単位",
+        "日本腹膜透析医学会学術集会など委員会承認の全国規模学術集会: 3単位"
+      ],
+      note: "eラーニング・生涯教育プログラムでの取得は更新期間中 上限25単位。",
+      sources: [["専門医制度(透析医学会)", "https://www.jsdt.or.jp/specialist/2102.html"]]
+    },
+    {
+      id: "jsh", color: "--q-jsh",
+      name: "高血圧専門医",
+      society: "日本高血圧学会",
+      cycleYears: 5,
+      requiredTotal: 50,
+      renewalDate: "",
+      feePaidDate: "",
+      fields: [
+        { id: "jshown", label: "本会企画の単位 (25以上必須)", min: 25, value: 0 },
+        { id: "other", label: "その他", min: 0, value: 0 }
+      ],
+      musts: [
+        { id: "m1", label: "医療安全に関する研修 (1単位)", done: false },
+        { id: "m2", label: "医療倫理に関する研修 (1単位)", done: false },
+        { id: "m3", label: "内科認定医または内科専門医資格を維持", done: false },
+        { id: "m4", label: "更新認定料 20,000円 納入", done: false }
+      ],
+      window: "申請受付は期限の前年 9/1〜10/31 (例: 2027/3/31期限 → 2026年9〜10月に申請)",
+      creditGuide: [
+        "学会総会 参加: 10単位 / 高血圧フォーラム: 8単位 / 国際高血圧学会(ISH): 10単位",
+        "指定オンデマンド配信視聴(教育講演・医療倫理研修等): 10単位",
+        "日本医学会総会: 5単位 / 認定学会年次集会: 3単位",
+        "Hypertension Research 筆頭論文: 10単位 / J-DOME症例登録: 10〜15単位"
+      ],
+      note: "機構サブスペ領域には含まれない学会独自認定。申請時期が他学会より早い (期限前年の秋) 点に注意。",
+      sources: [["専門医制度(高血圧学会)", "https://www.jpnsh.jp/specialties.html"], ["更新細則PDF", "https://www.jpnsh.jp/data/specialties/renewal.pdf"]]
+    },
+    {
+      id: "jspd", color: "--q-jspd",
+      name: "腹膜透析 認定医",
+      society: "日本腹膜透析医学会",
+      cycleYears: null,
+      requiredTotal: null,
+      renewalDate: "",
+      feePaidDate: "",
+      fields: [
+        { id: "attend", label: "学術集会・総会 参加回数 (参考: 新規要件は3回以上)", min: 3, value: 0, unit: "回" },
+        { id: "presen", label: "腹膜透析に関する発表 (参考: 5年で1件以上)", min: 1, value: 0, unit: "件" }
+      ],
+      musts: [
+        { id: "m1", label: "学会正会員を継続", done: false },
+        { id: "m2", label: "更新要件を学会公式サイト・会員ページで確認する", done: false }
+      ],
+      window: "更新周期・必要単位は公式サイトで要確認",
+      creditGuide: [
+        "学会の医師向け資格は「認定医」「連携認定医」の2種 (「腹膜透析専門医」という名称の資格は確認できず)",
+        "新規申請要件(参考): 臨床経験5年以上・正会員・学術集会/総会に過去3回以上参加・過去5年間にPD関連発表1件以上",
+        "学術集会参加は透析専門医の単位 (3単位) にもカウント可"
+      ],
+      note: "⚠ 更新周期・単位数の詳細は今回の調査では公式サイトから取得できませんでした。学会公式ページ (jspd.jp/certified/) でご確認のうえ、このカードの数値を教えていただければ組み込みます。",
+      sources: [["認定医制度(腹膜透析医学会)", "https://www.jspd.jp/certified/"]]
+    },
+    {
+      id: "jds", color: "--q-jds",
+      name: "糖尿病専門医",
+      society: "日本糖尿病学会",
+      cycleYears: 5,
+      requiredTotal: 70,
+      renewalDate: "",
+      feePaidDate: "",
+      fields: [
+        { id: "attend", label: "学術集会参加等の単位 (50必要・うち学会企画35以上)", min: 50, value: 0 },
+        { id: "lecture", label: "指定講演聴講の単位 (20必要)", min: 20, value: 0 }
+      ],
+      musts: [
+        { id: "m1", label: "症例報告 提出 (内科20症例 / 更新4回目以降は免除)", done: false },
+        { id: "m2", label: "患者教育関連資料 (糖尿病教室・啓発活動などの実績)", done: false },
+        { id: "m3", label: "内科学会の認定証 添付", done: false },
+        { id: "m4", label: "更新審査料 30,000円 納入", done: false }
+      ],
+      window: "申請受付は期限年の前年 4/1〜7/31・MyPageからWEB申請 (例: 2027/3/31期限 → 2026年4〜7月)",
+      creditGuide: [
+        "年次学術集会・地方会・糖尿病学の進歩・合併症学会 参加: 各8単位 (演者+5)",
+        "指定講演聴講: 現地は集会ごとに上限4〜8単位 / WEB参加は年10単位まで / eラーニングは上限なし",
+        "日本医学会総会: 8単位 / 関連学会年次集会: 3単位"
+      ],
+      note: "機構「糖尿病内科領域」「内分泌代謝・糖尿病内科領域」への移行スケジュールは会員ページで要確認。学会認定制度は並行運用中。",
+      sources: [["専門医更新(糖尿病学会)", "https://www.jds.or.jp/modules/specialist/index.php?content_id=28"]]
+    },
+    {
+      id: "endo", color: "--q-endo",
+      name: "内分泌代謝科専門医",
+      society: "日本内分泌学会",
+      cycleYears: 5,
+      requiredTotal: 60,
+      renewalDate: "",
+      feePaidDate: "",
+      fields: [
+        { id: "lecture", label: "指定講演聴講の単位 (20以上)", min: 20, value: 0 },
+        { id: "attend", label: "講演会参加等の単位 (30以上)", min: 30, value: 0 }
+      ],
+      musts: [
+        { id: "m1", label: "更新書類は最終年度に事務局から送付 → 期日までに申請", done: false },
+        { id: "m2", label: "他学会参加証・業績は自己保管 (学会主催分は自動登録)", done: false }
+      ],
+      window: "認定期間最終年度に事務局から更新手続書類が送付される",
+      creditGuide: [
+        "年次学術総会 参加: 10単位 (演者+5) / 臨床内分泌代謝Update: 10単位 (演者+5)",
+        "内分泌代謝学サマーセミナー: 5単位 / 支部学術集会: 5単位 (演者+2) / 県単位学術集会: 2単位",
+        "分科会・基幹学会(内科学会等) 参加: 3〜5単位",
+        "Endocrine Journal 筆頭論文: 10単位 / レフェリー誌: 3単位 / 査読: 1単位",
+        "※4回以上連続更新者は合計25単位 (指定講演5 + 参加20) に緩和"
+      ],
+      note: "機構認定「内分泌代謝・糖尿病内科領域専門医」(50単位/5年・領域講習は内分泌8/代謝2/糖尿病8以上) が2学会連携で稼働中。既存の学会認定からの移行措置は公式確認が必要。",
+      sources: [["専門医更新(内分泌学会)", "https://www.j-endo.jp/modules/special/index.php?content_id=9"], ["機構連携制度", "https://www.edandm.jp/"]]
+    }
+  ],
+  events: [
+    { s: "2026-08-30", e: "", name: "第354回 日本内科学会九州地方会・教育セミナー", loc: "九州 (現地)", q: { naika: "地方会5単位" } },
+    { s: "2026-09-05", e: "2026-09-06", name: "第100回 日本糖尿病学会中部地方会", loc: "中部", q: { jds: "参加8単位" } },
+    { s: "2026-09-05", e: "", name: "第239回 日本内科学会東北地方会", loc: "東北", q: { naika: "地方会5単位" } },
+    { s: "2026-09-06", e: "", name: "第260回 日本内科学会北陸地方会・教育セミナー", loc: "北陸 (ハイブリッド)", q: { naika: "地方会5単位" } },
+    { s: "2026-09-12", e: "", name: "第253回 日本内科学会近畿地方会・教育セミナー", loc: "近畿 (ハイブリッド)", q: { naika: "地方会5単位" } },
+    { s: "2026-09-20", e: "", name: "日本内科学会 生涯教育講演会Bセッション (腎臓・感染症・循環器ほか)", loc: "福岡 (ハイブリッド)", q: { naika: "10単位" } },
+    { s: "2026-09-26", e: "", name: "第27回 日本内分泌学会関東甲信越支部学術集会", loc: "東京・KFC Hall", q: { endo: "支部5単位" } },
+    { s: "2026-09-26", e: "2026-09-27", name: "第56回 日本腎臓学会西部学術大会", loc: "金沢", q: { jsn: "6単位+教育講演4" } },
+    { s: "2026-09-26", e: "", name: "第716回 日本内科学会関東地方会", loc: "関東 (ハイブリッド)", q: { naika: "地方会5単位" } },
+    { s: "2026-10-03", e: "", name: "第74回 信越支部生涯教育講演会・第159回信越地方会", loc: "信越 (ハイブリッド+オンデマンド)", q: { naika: "5単位" } },
+    { s: "2026-10-04", e: "", name: "第92回 東海支部生涯教育講演会・第260回東海地方会", loc: "東海 (ハイブリッド)", q: { naika: "5単位" } },
+    { s: "2026-10-10", e: "2026-10-12", name: "第48回 日本高血圧学会総会", loc: "宇都宮・ライトキューブ", q: { jsh: "総会10単位" } },
+    { s: "2026-10-11", e: "", name: "第717回 日本内科学会関東地方会", loc: "Web開催", q: { naika: "地方会5単位" } },
+    { s: "2026-10-16", e: "2026-10-17", name: "第64回 日本糖尿病学会中国・四国地方会", loc: "中国・四国", q: { jds: "参加8単位" } },
+    { s: "2026-10-17", e: "2026-10-18", name: "第56回 日本腎臓学会東部学術大会", loc: "東京・虎ノ門ヒルズフォーラム", q: { jsn: "6単位+教育講演4" } },
+    { s: "2026-10-17", e: "2026-10-18", name: "日本内科学会 第135回中国地方会・第74回中国支部生涯教育講演会", loc: "中国", q: { naika: "各5単位" } },
+    { s: "2026-10-30", e: "2026-10-31", name: "第64回 日本糖尿病学会九州地方会", loc: "九州", q: { jds: "参加8単位" } },
+    { s: "2026-11-07", e: "", name: "第64回 日本糖尿病学会東北地方会", loc: "東北", q: { jds: "参加8単位" } },
+    { s: "2026-11-15", e: "", name: "第60回 日本糖尿病学会北海道地方会", loc: "北海道", q: { jds: "参加8単位" } },
+    { s: "2026-11-15", e: "", name: "日本内科学会 第80回九州支部生涯教育講演会・第355回九州地方会 / 第718回関東地方会", loc: "九州・関東 (ハイブリッド)", q: { naika: "各5単位" } },
+    { s: "2026-11-27", e: "2026-11-28", name: "第36回 臨床内分泌代謝Update", loc: "仙台国際センター", q: { endo: "10単位" } },
+    { s: "2026-11-28", e: "2026-11-29", name: "第32回 日本腹膜透析医学会学術集会・総会", loc: "名古屋・ウインクあいち", q: { jspd: "参加実績1回", jsdt: "3単位" } },
+    { s: "2026-11-28", e: "", name: "第63回 日本糖尿病学会近畿地方会", loc: "近畿", q: { jds: "参加8単位" } },
+    { s: "2026-11-28", e: "", name: "第308回 日本内科学会北海道地方会", loc: "北海道", q: { naika: "地方会5単位" } },
+    { s: "2026-11-29", e: "", name: "日本内科学会 第73回四国支部生涯教育講演会・第135回四国地方会", loc: "四国 (ハイブリッド)", q: { naika: "各5単位" } },
+    { s: "2026-12-12", e: "", name: "第254回 日本内科学会近畿地方会", loc: "近畿", q: { naika: "地方会5単位" } },
+    { s: "2027-01-23", e: "", name: "第64回 日本糖尿病学会関東甲信越地方会", loc: "関東甲信越", q: { jds: "参加8単位" } },
+    { s: "2027-01-31", e: "", name: "日本内科学会 生涯教育講演会Cセッション (内分泌・代謝、血液ほか)", loc: "仙台 (ハイブリッド)", q: { naika: "10単位" } },
+    { s: "2027-03-13", e: "2027-03-14", name: "第61回 糖尿病学の進歩", loc: "金沢", q: { jds: "参加8単位" } },
+    { s: "2027-04-09", e: "2027-04-11", name: "第124回 日本内科学会総会・講演会", loc: "大阪国際会議場", q: { naika: "総会15単位", jsn: "基本領域5単位" } },
+    { s: "2027-04-15", e: "2027-04-17", name: "第100回 日本内分泌学会学術総会 (創設100周年)", loc: "那覇", q: { endo: "総会10単位" } },
+    { s: "2027-05-21", e: "2027-05-23", name: "第70回 日本糖尿病学会年次学術集会", loc: "東京国際フォーラム", q: { jds: "参加8単位" } },
+    { s: "2027-05-27", e: "2027-05-30", name: "第72回 日本透析医学会学術集会・総会", loc: "東京国際フォーラム ほか", q: { jsdt: "10単位+教育講演5" } },
+    { s: "2027-06-11", e: "2027-06-13", name: "第70回 日本腎臓学会学術総会", loc: "神戸", q: { jsn: "10単位+教育講演5", jsdt: "5単位" } },
+    { s: "2027-07-08", e: "2027-07-10", name: "第45回 内分泌代謝学サマーセミナー", loc: "宮城・松島", q: { endo: "5単位" } },
+    { s: "2027-09-25", e: "2027-09-26", name: "第57回 日本腎臓学会東部学術大会", loc: "群馬・高崎", q: { jsn: "6単位+教育講演4" } },
+    { s: "2027-10-02", e: "2027-10-03", name: "第57回 日本腎臓学会西部学術大会", loc: "久留米", q: { jsn: "6単位+教育講演4" } },
+    { s: "2027-11-12", e: "2027-11-14", name: "第49回 日本高血圧学会総会", loc: "福岡国際会議場", q: { jsh: "総会10単位" } },
+    { s: "2027-11-26", e: "2027-11-27", name: "第37回 臨床内分泌代謝Update", loc: "東京・都市センターホテル", q: { endo: "10単位" } }
+  ]
+};
+</script>
+<script>
+/* ================= アプリ本体 ================= */
+let state = JSON.parse(JSON.stringify(DEFAULT_DATA));
+let evFilter = "all";
+
+const $ = (s) => document.querySelector(s);
+const esc = (s) => String(s ?? "").replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+const today = () => { const d = new Date(); d.setHours(0,0,0,0); return d; };
+const fmtD = (iso) => { if (!iso) return ""; const [y,m,d] = iso.split("-"); return `${y}/${+m}/${+d}`; };
+const qualById = (id) => state.quals.find(q => q.id === id);
+
+function qualTotal(q) { return q.fields.reduce((s,f) => s + (Number(f.value)||0), 0); }
+
+function daysUntil(iso) {
+  if (!iso) return null;
+  return Math.round((new Date(iso + "T00:00:00") - today()) / 86400000);
+}
+
+function paceInfo(q) {
+  const total = qualTotal(q);
+  if (!q.requiredTotal) return { cls: "neutral", ic: "ℹ", label: "要件は要確認" };
+  const fieldsOk = q.fields.every(f => !f.min || (Number(f.value)||0) >= f.min);
+  if (total >= q.requiredTotal && fieldsOk) return { cls: "good", ic: "✓", label: "単位達成" };
+  if (!q.renewalDate) return { cls: "neutral", ic: "・", label: "期限未設定" };
+  const end = new Date(q.renewalDate + "T00:00:00");
+  const start = new Date(end); start.setFullYear(start.getFullYear() - (q.cycleYears || 5));
+  const elapsed = Math.min(1, Math.max(0, (today() - start) / (end - start)));
+  const expected = elapsed * q.requiredTotal;
+  const days = daysUntil(q.renewalDate);
+  if (days !== null && days < 0) return { cls: "critical", ic: "✕", label: "期限超過" };
+  if (days !== null && days <= 365 && total < q.requiredTotal * 0.8)
+    return { cls: "critical", ic: "！", label: "危険 (残り1年で不足大)" };
+  if (total >= expected) return { cls: "good", ic: "✓", label: "順調" };
+  if (total >= expected * 0.7) return { cls: "warning", ic: "▲", label: "やや遅れ" };
+  return { cls: "serious", ic: "●", label: "要ペースアップ" };
+}
+
+/* ---------- stat tiles ---------- */
+function renderTiles() {
+  const withDate = state.quals.filter(q => q.renewalDate);
+  let nearest = null;
+  for (const q of withDate) {
+    const d = daysUntil(q.renewalDate);
+    if (d !== null && d >= 0 && (nearest === null || d < nearest.d)) nearest = { d, q };
+  }
+  const risky = state.quals.filter(q => ["critical","serious","warning"].includes(paceInfo(q).cls)).length;
+  const done = state.quals.filter(q => paceInfo(q).cls === "good" && paceInfo(q).label === "単位達成").length;
+  const noDate = state.quals.filter(q => !q.renewalDate).length;
+  const ev = state.events.filter(e => daysUntil(e.s) >= 0);
+  $("#tiles").innerHTML = `
+    <div class="tile"><div class="lbl">管理中の資格</div><div class="val">${state.quals.length}<small style="font-size:14px;font-weight:400"> 件</small></div><div class="note">単位達成 ${done} 件</div></div>
+    <div class="tile"><div class="lbl">直近の更新期限</div><div class="val">${nearest ? `あと${nearest.d}日` : "—"}</div><div class="note">${nearest ? esc(nearest.q.name) + " (" + fmtD(nearest.q.renewalDate) + ")" : (noDate ? `期限未入力 ${noDate}件 — 各カードで入力を` : "期限を入力してください")}</div></div>
+    <div class="tile"><div class="lbl">要注意の資格</div><div class="val">${risky}<small style="font-size:14px;font-weight:400"> 件</small></div><div class="note">ペース遅れ・期限接近</div></div>
+    <div class="tile"><div class="lbl">今後の単位取得チャンス</div><div class="val">${ev.length}<small style="font-size:14px;font-weight:400"> 件</small></div><div class="note">次: ${ev[0] ? fmtD(ev[0].s) + " " + esc(ev[0].name).slice(0, 18) + "…" : "—"}</div></div>`;
+}
+
+/* 年会費納入日の経過表示: 1年以上前なら要確認の注意を出す */
+function feeNote(q) {
+  if (!q.feePaidDate) return `<span style="font-size:11.5px;color:var(--text-muted)">未入力</span>`;
+  const daysAgo = -daysUntil(q.feePaidDate);
+  if (daysAgo < 0) return `<span style="font-size:11.5px;color:var(--text-muted)">日付が未来です</span>`;
+  const months = Math.floor(daysAgo / 30);
+  if (daysAgo >= 365)
+    return `<span style="font-size:11.5px;color:color-mix(in srgb, var(--serious) 75%, var(--text-primary));font-weight:600">▲ 納入から${months}か月経過 — 今年度分を確認</span>`;
+  return `<span style="font-size:11.5px;color:var(--good-text)">✓ 納入から${months}か月 (1年以内)</span>`;
+}
+
+/* ---------- qualification cards ---------- */
+function renderCards() {
+  const host = $("#cards");
+  host.innerHTML = "";
+  for (const q of state.quals) {
+    const total = qualTotal(q);
+    const p = paceInfo(q);
+    const days = daysUntil(q.renewalDate);
+    const pct = q.requiredTotal ? Math.min(100, total / q.requiredTotal * 100) : 0;
+
+    const el = document.createElement("div");
+    el.className = "card";
+    el.style.setProperty("--qc", `var(${q.color})`);
+
+    let countdown = "";
+    if (q.renewalDate && days !== null) {
+      const yrs = Math.floor(Math.abs(days) / 365), rem = Math.abs(days) % 365;
+      const rough = yrs > 0 ? `約${yrs}年${Math.round(rem/30)}か月` : `約${Math.round(rem/30)}か月`;
+      countdown = days >= 0
+        ? `次回更新 <b>${fmtD(q.renewalDate)}</b> — あと<b>${days}日</b> (${rough})`
+        : `<b style="color:var(--critical)">期限を${-days}日超過 (${fmtD(q.renewalDate)})</b>`;
+    } else {
+      countdown = `次回更新日: <span style="color:var(--text-muted)">未設定 → 右の欄に入力</span>`;
+    }
+
+    const fieldsHtml = q.fields.map((f, i) => {
+      const v = Number(f.value) || 0;
+      const unit = f.unit || "単位";
+      const minTxt = f.min ? `/ 必要 ${f.min}${unit}` : (f.max ? `/ 上限 ${f.max}${unit}` : "");
+      const fpct = f.min ? Math.min(100, v / f.min * 100) : 0;
+      return `<div class="fieldrow">
+        <span class="flabel">${esc(f.label)}</span>
+        <input type="number" min="0" step="0.5" value="${v}" data-q="${q.id}" data-f="${i}" class="fval" aria-label="${esc(f.label)}">
+        <span class="fmin">${minTxt}</span>
+      </div>${f.min ? `<div class="bar mini"><i style="width:${fpct}%"></i></div>` : ""}`;
+    }).join("");
+
+    const mustsHtml = q.musts.map((m, i) => `
+      <label><input type="checkbox" data-q="${q.id}" data-m="${i}" class="mchk" ${m.done ? "checked" : ""}> <span>${esc(m.label)}</span></label>`).join("");
+
+    const guideHtml = q.creditGuide.map(g => `<li>${esc(g)}</li>`).join("");
+    const srcHtml = q.sources.map(s => `<a href="${esc(s[1])}" target="_blank" rel="noopener">${esc(s[0])}</a>`).join(" / ");
+
+    el.innerHTML = `
+      <h3><span class="qdot"></span>${esc(q.name)} <span class="chip ${p.cls}" style="margin-left:auto"><span class="ic">${p.ic}</span>${p.label}</span></h3>
+      <div class="society">${esc(q.society)}${q.cycleYears ? ` ・ ${q.cycleYears}年ごと更新` : ""}</div>
+      <div class="rowline">
+        <span class="bigcount">${q.requiredTotal ? `${total}<small> / ${q.requiredTotal} 単位</small>` : `<small>必要単位: 公式確認が必要</small>`}</span>
+        <span style="margin-left:auto"><label>更新期限 <input type="date" value="${esc(q.renewalDate)}" data-q="${q.id}" class="rdate"></label></span>
+      </div>
+      ${q.requiredTotal ? `<div class="bar"><i style="width:${pct}%"></i></div>` : ""}
+      <div class="countdown">${countdown}</div>
+      <div class="rowline" style="margin:6px 0 2px">
+        <label>最終年会費納入日 <input type="date" value="${esc(q.feePaidDate || "")}" data-q="${q.id}" class="fdate"></label>
+        ${feeNote(q)}
+      </div>
+      <div style="margin-top:8px">${fieldsHtml}</div>
+      <div class="musts"><div class="mtitle">必須要件チェック</div>${mustsHtml}</div>
+      <div class="countdown" style="margin-top:7px">📋 ${esc(q.window)}</div>
+      ${q.note.startsWith("⚠") ? `<div class="warnnote">${esc(q.note)}</div>` : ""}
+      <details><summary>単位の取り方・制度メモ・出典</summary><div class="inner">
+        <ul>${guideHtml}</ul>
+        ${q.note.startsWith("⚠") ? "" : `<p>${esc(q.note)}</p>`}
+        <p>出典: ${srcHtml}</p>
+      </div></details>
+      <textarea class="memo" data-q="${q.id}" placeholder="メモ (受講予定・参加証の保管場所など)">${esc(q.memo || "")}</textarea>`;
+    host.appendChild(el);
+  }
+
+  host.querySelectorAll(".fval").forEach(inp => inp.addEventListener("input", e => {
+    const q = qualById(e.target.dataset.q);
+    q.fields[+e.target.dataset.f].value = e.target.value === "" ? 0 : Number(e.target.value);
+    renderTiles(); refreshCardDerived();
+  }));
+  host.querySelectorAll(".rdate").forEach(inp => inp.addEventListener("change", e => {
+    qualById(e.target.dataset.q).renewalDate = e.target.value;
+    render();
+  }));
+  host.querySelectorAll(".fdate").forEach(inp => inp.addEventListener("change", e => {
+    qualById(e.target.dataset.q).feePaidDate = e.target.value;
+    render();
+  }));
+  host.querySelectorAll(".mchk").forEach(inp => inp.addEventListener("change", e => {
+    qualById(e.target.dataset.q).musts[+e.target.dataset.m].done = e.target.checked;
+  }));
+  host.querySelectorAll(".memo").forEach(t => t.addEventListener("input", e => {
+    qualById(e.target.dataset.q).memo = e.target.value;
+  }));
+}
+
+/* live-update bars/chips without rebuilding inputs (keeps focus) */
+function refreshCardDerived() {
+  document.querySelectorAll("#cards .card").forEach((el, idx) => {
+    const q = state.quals[idx];
+    const total = qualTotal(q);
+    const p = paceInfo(q);
+    const chip = el.querySelector(".chip");
+    chip.className = `chip ${p.cls}`;
+    chip.style.marginLeft = "auto";
+    chip.innerHTML = `<span class="ic">${p.ic}</span>${p.label}`;
+    const big = el.querySelector(".bigcount");
+    if (q.requiredTotal) {
+      big.innerHTML = `${total}<small> / ${q.requiredTotal} 単位</small>`;
+      const mainBar = el.querySelector(".bar:not(.mini) > i");
+      if (mainBar) mainBar.style.width = Math.min(100, total / q.requiredTotal * 100) + "%";
+    }
+    const minis = el.querySelectorAll(".bar.mini > i");
+    let mi = 0;
+    q.fields.forEach(f => {
+      if (f.min) {
+        const v = Number(f.value) || 0;
+        if (minis[mi]) minis[mi].style.width = Math.min(100, v / f.min * 100) + "%";
+        mi++;
+      }
+    });
+  });
+}
+
+/* ---------- events ---------- */
+function renderFilters() {
+  const host = $("#filters");
+  const chips = [["all", "すべて", null], ...state.quals.map(q => [q.id, q.name, q.color])];
+  host.innerHTML = chips.map(([id, label, color]) =>
+    `<span class="fchip ${evFilter === id ? "on" : ""}" data-fid="${id}">${color ? `<span class="qdot" style="background:var(${color})"></span>` : ""}${esc(label)}</span>`
+  ).join("");
+  host.querySelectorAll(".fchip").forEach(c => c.addEventListener("click", () => {
+    evFilter = c.dataset.fid; renderFilters(); renderEvents();
+  }));
+}
+
+function renderEvents() {
+  const showPast = $("#showPast").checked;
+  const rows = state.events
+    .filter(ev => evFilter === "all" || ev.q[evFilter])
+    .filter(ev => showPast || daysUntil(ev.e || ev.s) >= 0)
+    .sort((a, b) => a.s.localeCompare(b.s));
+  $("#evbody").innerHTML = rows.length ? rows.map(ev => {
+    const d = daysUntil(ev.s);
+    const past = daysUntil(ev.e || ev.s) < 0;
+    const dateTxt = `<b>${fmtD(ev.s)}</b>${ev.e ? `<br>〜${fmtD(ev.e)}` : ""}`;
+    const soon = !past && d >= 0 && d <= 30 ? `<div class="soon">あと${d}日</div>` : (past ? `<div style="font-size:11px;color:var(--text-muted)">終了</div>` : `<div style="font-size:11px;color:var(--text-muted)">あと${d}日</div>`);
+    const tags = Object.entries(ev.q).map(([qid, cred]) => {
+      const q = qualById(qid);
+      return q ? `<span class="qtag"><span class="qdot" style="background:var(${q.color})"></span>${esc(q.name)} <span class="credhint">${esc(cred)}</span></span>` : "";
+    }).join("");
+    return `<tr style="${past ? "opacity:.55" : ""}"><td class="date">${dateTxt}${soon}</td><td>${esc(ev.name)}</td><td>${esc(ev.loc)}</td><td>${tags}</td></tr>`;
+  }).join("") : `<tr><td colspan="4" style="color:var(--text-muted)">該当する予定はありません</td></tr>`;
+}
+
+/* ---------- export / import ----------
+   書き出すのは「入力値だけ」(単位数・期限・チェック・メモ)。
+   学会予定や必要単位数などのマスターデータはダッシュボード本体が持つため、
+   ダッシュボードを新バージョンに差し替えても、古いJSONを読み込めば
+   入力値だけが復元され、新しい予定・要件はそのまま生きる。 */
+function extractUserData() {
+  const quals = {};
+  for (const q of state.quals) {
+    quals[q.id] = {
+      renewalDate: q.renewalDate || "",
+      feePaidDate: q.feePaidDate || "",
+      memo: q.memo || "",
+      fields: Object.fromEntries(q.fields.map(f => [f.id, Number(f.value) || 0])),
+      musts: Object.fromEntries(q.musts.map(m => [m.id, !!m.done]))
+    };
+  }
+  return { format: "senmoni-userdata", version: 2, savedAt: new Date().toISOString(), quals };
+}
+function applyUserData(data) {
+  /* v2形式 (入力値のみ) と v1形式 (旧・全体書き出し) の両方を受け付ける */
+  const src = data.format === "senmoni-userdata"
+    ? data.quals
+    : Object.fromEntries((data.quals || []).map(q => [q.id, {
+        renewalDate: q.renewalDate || "", feePaidDate: q.feePaidDate || "", memo: q.memo || "",
+        fields: Object.fromEntries((q.fields || []).map(f => [f.id, Number(f.value) || 0])),
+        musts: Object.fromEntries((q.musts || []).map(m => [m.id, !!m.done]))
+      }]));
+  if (!src || typeof src !== "object") throw new Error("形式が違います");
+  for (const q of state.quals) {
+    const u = src[q.id];
+    if (!u) continue;
+    if (u.renewalDate !== undefined) q.renewalDate = u.renewalDate;
+    if (u.feePaidDate !== undefined) q.feePaidDate = u.feePaidDate;
+    if (u.memo !== undefined) q.memo = u.memo;
+    for (const f of q.fields) if (u.fields && u.fields[f.id] !== undefined) f.value = u.fields[f.id];
+    for (const m of q.musts) if (u.musts && u.musts[m.id] !== undefined) m.done = u.musts[m.id];
+  }
+}
+const LOCAL_SAVE_KEY = "senmoni-dashboard-userdata-v2";
+function saveLocalData(showMessage = true) {
+  try {
+    localStorage.setItem(LOCAL_SAVE_KEY, JSON.stringify(extractUserData()));
+    if (showMessage) alert("入力内容をこのブラウザに保存しました。");
+  } catch (err) {
+    alert("保存に失敗しました: " + err.message);
+  }
+}
+function loadLocalData() {
+  try {
+    const raw = localStorage.getItem(LOCAL_SAVE_KEY);
+    if (raw) applyUserData(JSON.parse(raw));
+  } catch (err) { console.warn("保存データの復元に失敗しました", err); }
+}
+$("#btnSave").addEventListener("click", () => saveLocalData(true));
+$("#btnExport").addEventListener("click", () => {
+  const blob = new Blob([JSON.stringify(extractUserData(), null, 2)], { type: "application/json" });
+  const a = document.createElement("a");
+  a.href = URL.createObjectURL(blob);
+  a.download = `senmoni-data-${new Date().toISOString().slice(0,10)}.json`;
+  a.click();
+  URL.revokeObjectURL(a.href);
+});
+$("#btnImport").addEventListener("click", () => $("#fileImport").click());
+$("#fileImport").addEventListener("change", (e) => {
+  const file = e.target.files[0];
+  if (!file) return;
+  const r = new FileReader();
+  r.onload = () => {
+    try {
+      applyUserData(JSON.parse(r.result));
+      render();
+    } catch (err) { alert("読み込みに失敗しました: " + err.message); }
+  };
+  r.readAsText(file);
+  e.target.value = "";
+});
+$("#btnTheme").addEventListener("click", () => {
+  const cur = document.documentElement.dataset.theme;
+  const sysDark = matchMedia("(prefers-color-scheme: dark)").matches;
+  const isDark = cur === "dark" || (!cur && sysDark);
+  document.documentElement.dataset.theme = isDark ? "light" : "dark";
+});
+$("#showPast").addEventListener("change", renderEvents);
+
+function render() {
+  const t = today();
+  $("#subline").textContent = `今日: ${t.getFullYear()}/${t.getMonth()+1}/${t.getDate()} ・ 必要単位数は2026年8月時点の各学会公式情報に基づく参考値`;
+  renderTiles(); renderCards(); renderFilters(); renderEvents();
+  $("#srclist").innerHTML = "主な出典: " + [
+    ["日本内科学会", "https://www.naika.or.jp/nintei/koshin/f_koshin/"],
+    ["日本腎臓学会", "https://jsn.or.jp/medic/specialistsystem/specialist/"],
+    ["日本透析医学会", "https://www.jsdt.or.jp/specialist/2102.html"],
+    ["日本高血圧学会", "https://www.jpnsh.jp/specialties.html"],
+    ["日本腹膜透析医学会", "https://www.jspd.jp/certified/"],
+    ["日本糖尿病学会", "https://www.jds.or.jp/modules/specialist/index.php?content_id=28"],
+    ["日本内分泌学会", "https://www.j-endo.jp/modules/special/index.php?content_id=9"],
+    ["日本専門医機構", "https://jmsb.or.jp/"]
+  ].map(s => `<a href="${s[1]}" target="_blank" rel="noopener">${s[0]}</a>`).join(" ・ ");
+}
+loadLocalData();
+render();
+</script>
+</body>
+</html>
