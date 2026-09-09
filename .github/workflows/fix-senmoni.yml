@@ -1,0 +1,41 @@
+name: Fix specialist dashboard HTML
+
+on:
+  push:
+    paths:
+      - '.github/workflows/fix-senmoni.yml'
+
+permissions:
+  contents: write
+
+jobs:
+  fix:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Convert compressed wrapper to normal HTML
+        run: |
+          python - <<'PY'
+          import re, base64, gzip
+          from pathlib import Path
+          p = Path('senmoni-dashboard.html')
+          s = p.read_text(encoding='utf-8')
+          m = re.search(r"atob\('([^']+)'\)", s)
+          if not m:
+              print('Already plain HTML; nothing to convert')
+              raise SystemExit(0)
+          html = gzip.decompress(base64.b64decode(m.group(1))).decode('utf-8')
+          p.write_text(html, encoding='utf-8')
+          print('Converted to plain HTML:', len(html), 'chars')
+          PY
+      - name: Commit fixed HTML
+        run: |
+          if git diff --quiet -- senmoni-dashboard.html; then
+            echo 'No changes'
+            exit 0
+          fi
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add senmoni-dashboard.html
+          git commit -m 'Fix dashboard blank screen and keep save button'
+          git push
