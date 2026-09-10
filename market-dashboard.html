@@ -387,7 +387,7 @@ footer{margin-top:26px;font-size:.66rem;color:var(--muted);line-height:1.7}
 <script>
 "use strict";
 /* ================= 設定 ================= */
-const APP_VER = "v23";   // 更新のたびに数字が上がります。サイトの表示と一致するか確認に使ってください
+const APP_VER = "v24";   // 更新のたびに数字が上がります。サイトの表示と一致するか確認に使ってください
 const MOCK = new URLSearchParams(location.search).has("mock");
 
 const NAMES = {
@@ -527,10 +527,14 @@ function saveHoldings(){
 saveHoldings();
 /* 米国株・米国ETF判定（Finnhub無料枠で取れる範囲） */
 const isUS = sym => /^[A-Z]{1,5}$/.test(sym);
-function fetchTimeout(url, ms){
+async function fetchTimeout(url, ms){
   const ctrl = new AbortController();
   const t = setTimeout(()=>ctrl.abort(), ms);
-  return fetch(url, {signal:ctrl.signal}).finally(()=>clearTimeout(t));
+  try{
+    const res = await fetch(url, {signal:ctrl.signal});
+    const body = await res.arrayBuffer();
+    return new Response(body, {status:res.status, statusText:res.statusText, headers:res.headers});
+  }finally{ clearTimeout(t); }
 }
 /* Finnhubのレート制限(60回/分)対策: PER・決算日などの付随データは1.8秒間隔で順番に照会する */
 let fhChain = Promise.resolve();
@@ -779,24 +783,35 @@ function saveQuotes(){
 }
 async function fetchAll(symbols, onEach){
   /* CodeTabs無料枠は5 req/sec。大量同時アクセスを避けて429と中継全滅を防ぐ。 */
-  const CONC = 2;
+  const fast = symbols.filter(s=>fhKey && isUS(s));
+  const slow = symbols.filter(s=>!(fhKey && isUS(s)));
+  async function runQueue(queue, concurrency){
   let idx = 0;
   async function worker(){
-    while(idx < symbols.length){
-      const s = symbols[idx++];
+    while(idx < queue.length){
+      const s = queue[idx++];
+      let deadline;
       try{
-        const q = await fetchQuote(s);
+        const q = await Promise.race([
+          fetchQuote(s),
+          new Promise((_,reject)=>{ deadline=setTimeout(()=>reject(new Error("quote timeout")),20000); })
+        ]);
         if(!Number.isFinite(q.price) || q.price <= 0) throw new Error("invalid price");
         quoteCache[s] = {...q, fetchedAt:Date.now(), stale:false};
         saveQuotes();
       }catch(e){
         quoteCache[s] = quoteCache[s] || {sym:s, error:true};
         quoteCache[s].stale = true;
+      }finally{
+        clearTimeout(deadline);
       }
-      if(onEach) onEach(s);
+      /* 描画エラーで取得キューを終了させない。 */
+      try{ if(onEach) onEach(s); }catch(e){ console.error("Quote display failed", s); }
     }
   }
-  await Promise.all(Array.from({length:CONC}, worker));
+  await Promise.all(Array.from({length:concurrency}, worker));
+  }
+  await Promise.all([runQueue(fast,2),runQueue(slow,2)]);
 }
 
 /* 次回決算日 (Yahoo quoteSummary、失敗時はシード値/手入力を使用) */
