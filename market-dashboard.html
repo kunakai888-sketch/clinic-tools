@@ -387,7 +387,7 @@ footer{margin-top:26px;font-size:.66rem;color:var(--muted);line-height:1.7}
 <script>
 "use strict";
 /* ================= 設定 ================= */
-const APP_VER = "v24";   // 更新のたびに数字が上がります。サイトの表示と一致するか確認に使ってください
+const APP_VER = "v25";   // 更新のたびに数字が上がります。サイトの表示と一致するか確認に使ってください
 const MOCK = new URLSearchParams(location.search).has("mock");
 
 const NAMES = {
@@ -551,20 +551,36 @@ async function fhQuote(sym){
   return {sym, price:j.c, prev:j.pc, chg:j.d ?? (j.c-j.pc), pct:j.dp ?? ((j.c-j.pc)/j.pc*100),
           dayHigh:j.h || null, dayLow:j.l || null, spark:quoteCache[sym]?.spark || null, currency:"USD"};
 }
-/* Finnhub利用時、スパークラインだけ裏でYahooから補完 */
+/* 通常価格とは独立して時間外データを保持。補完通信は最大2件。 */
+const extendedCache = Object.create(null);
 const sparkPending = new Set();
-async function fillSpark(sym){
+const sparkQueue = [];
+let sparkActive = 0;
+function fillSpark(sym){
   if(sparkPending.has(sym)) return;
   sparkPending.add(sym);
+  sparkQueue.push(sym);
+  drainSpark();
+}
+async function drainSpark(){
+  if(sparkActive >= 2 || !sparkQueue.length) return;
+  const sym = sparkQueue.shift();
+  sparkActive++;
+  const old = extendedCache[sym];
+  extendedCache[sym] = {...old, status:"loading"};
   try{
-    const y = await fetchYahooQuote(sym);
-    if(quoteCache[sym] && y.spark?.length){
-      quoteCache[sym].spark = y.spark;
-      quoteCache[sym].ext = y.ext; quoteCache[sym].extPct = y.extPct;   // 時間外価格も補完
-      renderHoldings();
+    const y = await fetchYahooQuote(sym, true);
+    extendedCache[sym] = {...y, status:"ready"};
+    if(quoteCache[sym]){
+      if(y.spark?.length) quoteCache[sym].spark = y.spark;
     }
-  }catch(e){}
-  finally{ setTimeout(()=>sparkPending.delete(sym), 30000); }
+  }catch(e){
+    extendedCache[sym] = {...old, status:"error"};
+  }finally{
+    sparkPending.delete(sym);
+    sparkActive--;
+    try{ renderHoldings(); }finally{ drainSpark(); }
+  }
 }
 
 /* ================= データ取得層 ================= */
@@ -700,7 +716,6 @@ async function fetchQuote(sym){
     try{
       const q = await fhQuote(sym);   // 高速パス: Finnhub直接
       srcStat.finnhub = "✓";
-      fillSpark(sym);                 // チャートは裏で補完
       return q;
     }catch(e){
       if(String(e.message).includes("401") || String(e.message).includes("403")) srcStat.finnhub = "キー無効";
@@ -728,12 +743,48 @@ function nyState(){
   return "closed";
 }
 
+/* 値幅や閲覧時刻ではなく、バーの取引時刻と市場セッションで判定する。 */
+function extractExtended(sym, r, price){
+  const empty = {ext:null, extPct:null, extTime:null, extSession:null};
+  if(!/^[A-Z][A-Z.-]{0,5}$/.test(sym)) return empty;
+  const periods = r.meta?.currentTradingPeriod;
+  if(!periods?.regular) return empty;
+  const closes = r.indicators?.quote?.[0]?.close || [];
+  const times = r.timestamp || [];
+  for(let i=times.length-1; i>=0; i--){
+    const t=times[i], value=closes[i];
+    if(!Number.isFinite(value) || value<=0 || !Number.isFinite(t)) continue;
+    const session = ["pre","post"].find(k=>{
+      const p=periods[k];
+      return p && t>=p.start && t<p.end;
+    });
+    if(!session) continue;
+    // プレは前日終値、アフターは当日レギュラー終値が比較基準。
+    const base = session==="pre" && r.meta.regularMarketTime>=periods.regular.start
+      ? (r.meta.previousClose ?? r.meta.chartPreviousClose) : price;
+    return {ext:value, extPct:Number.isFinite(base)&&base>0 ? (value-base)/base*100 : null,
+            extTime:t, extSession:session};
+  }
+  return empty;
+}
+
 /* Yahoo v8 chart: 1銘柄分の現在値+前日終値+当日5分足（プレ・アフター含む） */
-async function fetchYahooQuote(sym){
+async function fetchYahooQuote(sym, supplemental=false){
   const path = `/v8/finance/chart/${encodeURIComponent(sym)}?range=1d&interval=5m&includePrePost=true`;
   let j = null, lastErr = null;
   for(const host of ["https://query1.finance.yahoo.com", "https://query2.finance.yahoo.com"]){
-    try{ j = await fetchJSON(host + path); break; }
+    try{
+      if(supplemental){
+        // 通常価格の通信失敗による冷却から隔離し、少数の経路だけ再試行。
+        let err;
+        for(const i of [0,1]){
+          try{ j = JSON.parse(await proxyFetch(host + path, i, 5000, true)); break; }
+          catch(e){ err=e; }
+        }
+        if(!j) throw err;
+      }else{ j = await fetchJSON(host + path); }
+      break;
+    }
     catch(e){ lastErr = e; }
   }
   if(!j) throw lastErr || new Error("yahoo unreachable");
@@ -745,21 +796,14 @@ async function fetchYahooQuote(sym){
   const prev  = meta.chartPreviousClose ?? meta.previousClose;
   const highs = (r.indicators?.quote?.[0]?.high||[]).filter(v=>v!=null);
   const lows  = (r.indicators?.quote?.[0]?.low ||[]).filter(v=>v!=null);
-  /* 米国株の時間外価格: 直近バーがレギュラー価格とズレていれば時間外取引とみなす */
-  let ext = null, extPct = null;
-  const isUsStock = /^[A-Z.-]{1,6}$/.test(sym) && !sym.includes("=") && !sym.startsWith("^") && !sym.endsWith("-USD");
-  const last = closes[closes.length-1];
-  if(isUsStock && nyState()!=="open" && price!=null && last!=null && Math.abs(last-price)/price > 0.0005){
-    ext = last;
-    extPct = (last-price)/price*100;
-  }
+  const extended = extractExtended(sym, r, price);
   return {
     sym, price, prev,
     chg: price!=null && prev!=null ? price-prev : null,
     pct: price!=null && prev!=null && prev!==0 ? (price-prev)/prev*100 : null,
     dayHigh: meta.regularMarketDayHigh ?? (highs.length?Math.max(...highs):null),
     dayLow:  meta.regularMarketDayLow  ?? (lows.length ?Math.min(...lows):null),
-    spark: closes, currency: meta.currency, ext, extPct
+    spark: closes, currency: meta.currency, ...extended
   };
 }
 
@@ -799,6 +843,7 @@ async function fetchAll(symbols, onEach){
         if(!Number.isFinite(q.price) || q.price <= 0) throw new Error("invalid price");
         quoteCache[s] = {...q, fetchedAt:Date.now(), stale:false};
         saveQuotes();
+        if(!MOCK && fhKey && isUS(s)) fillSpark(s);
       }catch(e){
         quoteCache[s] = quoteCache[s] || {sym:s, error:true};
         quoteCache[s].stale = true;
@@ -972,11 +1017,17 @@ function daysUntil(str){
   return Math.round((parseYMD(str) - today) / 86400000);
 }
 function extCell(q){
-  if(q.ext == null) return `<span class="rm">—</span>`;
-  const ny = tzParts("America/New_York");
-  const label = (ny.h*60 + ny.m) < 570 ? "プレ" : "アフター";
-  return `<div class="num"><span class="e-tag">${label}</span><span class="e-px">${fmtPrice(q.ext, q.sym)}</span></div>
-    <div class="e-pct num ${cls(q.extPct)}">${arrow(q.extPct)} ${fmtPct(q.extPct)}</div>`;
+  const e = extendedCache[q.sym] || q;
+  if(e.ext == null){
+    const status = e.status==="loading" ? "取得中…" : e.status==="error" ? "時間外取得失敗" : "時間外データなし";
+    return '<span class="rm">'+(/^[A-Z][A-Z.-]{0,5}$/.test(q.sym) ? status : "—")+'</span>';
+  }
+  const label = e.extSession==="pre" ? "プレ" : e.extSession==="post" ? "アフター" : "時間外";
+  const time = e.extTime ? new Date(e.extTime*1000).toLocaleString("ja-JP") : "";
+  const note = e.status==="error" || e.status==="loading" || q.stale ? "前回値・" : "";
+  return `<div class="num"><span class="e-tag">${label}</span><span class="e-px">${fmtPrice(e.ext, q.sym)}</span></div>
+    <div class="e-pct num ${cls(e.extPct)}">${arrow(e.extPct)} ${fmtPct(e.extPct)}</div>
+    <div class="rm">${note}${esc(time)}</div>`;
 }
 /* ---- PER（実績TTM・Finnhub財務指標） ---- */
 const perCache = {};        // sym -> {pe, eps, t}
