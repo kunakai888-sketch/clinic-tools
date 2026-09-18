@@ -341,7 +341,7 @@ footer{margin-top:26px;font-size:.66rem;color:var(--muted);line-height:1.7}
 </section>
 
 <footer>
-  データ: Yahoo Finance（15〜20分遅延の場合あり／先物・指数はほぼリアルタイム）・Finnhub（APIキー設定時の米国株）・CNN Fear &amp; Greed・Stooq（日本10年債）。
+  データ: Yahoo Finance（遅延の場合あり）・Finnhub（APIキー設定時の米国株）・CNBC（米国株の時間外価格）・CNN Fear &amp; Greed・Stooq（日本10年債）。時間外欄には取引時刻と取得元を表示します。
   イベント日程: FRB・BLS・日銀の公表スケジュール（2026年）に基づく。決算日の「(予)」は過去実績からの推定のため、企業の正式発表をご確認ください。
   本アプリは情報提供のみを目的とし、投資助言ではありません。銘柄リスト・APIキー・決算日はこのブラウザ内に自動保存されます。
   別の端末に銘柄リストを持ち込むときだけ、URL末尾に「#h=MU,TSM,…」を付けて開いてください（取り込み後は自動的に消えます）。
@@ -387,7 +387,7 @@ footer{margin-top:26px;font-size:.66rem;color:var(--muted);line-height:1.7}
 <script>
 "use strict";
 /* ================= 設定 ================= */
-const APP_VER = "v25";   // 更新のたびに数字が上がります。サイトの表示と一致するか確認に使ってください
+const APP_VER = "v26";   // 更新のたびに数字が上がります。サイトの表示と一致するか確認に使ってください
 const MOCK = new URLSearchParams(location.search).has("mock");
 
 const NAMES = {
@@ -553,6 +553,82 @@ async function fhQuote(sym){
 }
 /* 通常価格とは独立して時間外データを保持。補完通信は最大2件。 */
 const extendedCache = Object.create(null);
+const usEquity = s => /^[A-Z][A-Z.-]{0,5}$/.test(s);
+function quoteNumber(value){
+  if(typeof value !== "string" && typeof value !== "number") return null;
+  const text = String(value).replace(/[,%$\s]/g, "");
+  if(!text) return null;
+  const n = Number(text);
+  return Number.isFinite(n) ? n : null;
+}
+function parseCNBCQuote(row){
+  if(!row || String(row.code)!=="0" || !usEquity(row.symbol)) return null;
+  const price = quoteNumber(row.last), chg = quoteNumber(row.change);
+  if(!(price>0)) return null;
+  const x = row.ExtendedMktQuote;
+  const session = x?.type==="PRE_MKT" ? "pre" : x?.type==="POST_MKT" ? "post" : null;
+  const time = typeof x?.last_time==="string" ? Date.parse(x.last_time.replace(/([+-]\d{2})(\d{2})$/, "$1:$2"))/1000 : NaN;
+  const px = quoteNumber(x?.last);
+  const valid = session && px>0 && Number.isFinite(time);
+  return {
+    sym:row.symbol, price, chg, pct:quoteNumber(row.change_pct),
+    prev:chg!=null ? price-chg : null, currency:row.currencyCode || "USD",
+    dayHigh:quoteNumber(row.high)>0 ? quoteNumber(row.high) : null,
+    dayLow:quoteNumber(row.low)>0 ? quoteNumber(row.low) : null,
+    ext:valid ? px : null, extPct:valid ? quoteNumber(x.change_pct) : null,
+    extTime:valid ? time : null, extSession:valid ? session : null, extSrc:"CNBC"
+  };
+}
+function acceptExtended(sym, q){
+  const old = extendedCache[sym];
+  if(q.ext==null && old?.ext!=null){ old.status="error"; return; }
+  if(old?.extTime && q.extTime && old.extTime>q.extTime){ old.status="ready"; return; }
+  extendedCache[sym] = {...q, status:"ready", checkedAt:Date.now()};
+}
+let extendedRefreshing = false;
+async function refreshExtended(symbols){
+  if(MOCK || extendedRefreshing) return;
+  extendedRefreshing = true;
+  const list = [...new Set(symbols.filter(usEquity))];
+  let idx=0, failed=0;
+  list.forEach(s=>{ extendedCache[s]={...extendedCache[s],status:"loading"}; });
+  async function worker(){
+    while(idx<list.length){
+      const batch=list.slice(idx,idx+=5);
+      try{
+        const url="https://quote.cnbc.com/quote-html-webservice/quote.htm?symbols="+encodeURIComponent(batch.join("|"))+
+          "&requestMethod=itv&noform=1&partnerId=2&fund=1&exthrs=1&output=json";
+        const res=await fetchTimeout(url,20000);
+        if(!res.ok) throw new Error("CNBC HTTP "+res.status);
+        const j=await res.json();
+        const rows=j?.ITVQuoteResult?.ITVQuote;
+        if(!Array.isArray(rows)) throw new Error("CNBC invalid response");
+        const parsed=new Map(rows.map(parseCNBCQuote).filter(Boolean).map(q=>[q.sym,q]));
+        for(const s of batch){
+          const q=parsed.get(s);
+          if(!q){ failed++; extendedCache[s]={...extendedCache[s],status:"error"}; fillSpark(s); continue; }
+          acceptExtended(s,q);
+          if(!quoteCache[s]?.price || quoteCache[s].stale){
+            quoteCache[s]={...q,spark:quoteCache[s]?.spark || [],fetchedAt:Date.now(),stale:false};
+          }
+          if(q.ext==null) fillSpark(s);
+        }
+        saveQuotes();
+      }catch(e){
+        failed+=batch.length;
+        batch.forEach(s=>{ extendedCache[s]={...extendedCache[s],status:"error"}; fillSpark(s); });
+      }
+      renderHoldings();
+    }
+  }
+  try{
+    await Promise.all([worker(),worker()]);
+    srcStat.extended=list.length===0 ? "—" : failed===0 ? "✓" : "一部取得不可";
+  }finally{
+    extendedRefreshing=false;
+    updateSrcStat();
+  }
+}
 const sparkPending = new Set();
 const sparkQueue = [];
 let sparkActive = 0;
@@ -566,16 +642,14 @@ async function drainSpark(){
   if(sparkActive >= 2 || !sparkQueue.length) return;
   const sym = sparkQueue.shift();
   sparkActive++;
-  const old = extendedCache[sym];
-  extendedCache[sym] = {...old, status:"loading"};
   try{
     const y = await fetchYahooQuote(sym, true);
-    extendedCache[sym] = {...y, status:"ready"};
+    if(y.ext!=null) acceptExtended(sym,{...y,extSrc:"Yahoo"});
     if(quoteCache[sym]){
       if(y.spark?.length) quoteCache[sym].spark = y.spark;
     }
   }catch(e){
-    extendedCache[sym] = {...old, status:"error"};
+    if(extendedCache[sym]?.ext==null) extendedCache[sym]={status:"error"};
   }finally{
     sparkPending.delete(sym);
     sparkActive--;
@@ -595,7 +669,7 @@ let goodProxy = 0; // 直近成功したプロキシを優先
 const proxyCool = new Array(PROXIES.length).fill(0);   // 失敗したプロキシは60秒休ませる
 
 /* データ源の状態（画面の「データ源」表示と診断用） */
-const srcStat = {finnhub:"—", yahoo:"—", stooq:"—", fpe:"—"};
+const srcStat = {finnhub:"—", yahoo:"—", stooq:"—", fpe:"—", extended:"—"};
 
 /* 1プロキシ経由で本文テキストを取得
    noCool=true: 失敗しても中継サーバーを休止扱いにしない（重いスクレイピング用。
@@ -843,7 +917,7 @@ async function fetchAll(symbols, onEach){
         if(!Number.isFinite(q.price) || q.price <= 0) throw new Error("invalid price");
         quoteCache[s] = {...q, fetchedAt:Date.now(), stale:false};
         saveQuotes();
-        if(!MOCK && fhKey && isUS(s)) fillSpark(s);
+        if(!MOCK && fhKey && isUS(s) && holdings.includes(s)) fillSpark(s);
       }catch(e){
         quoteCache[s] = quoteCache[s] || {sym:s, error:true};
         quoteCache[s].stale = true;
@@ -1024,10 +1098,10 @@ function extCell(q){
   }
   const label = e.extSession==="pre" ? "プレ" : e.extSession==="post" ? "アフター" : "時間外";
   const time = e.extTime ? new Date(e.extTime*1000).toLocaleString("ja-JP") : "";
-  const note = e.status==="error" || e.status==="loading" || q.stale ? "前回値・" : "";
+  const note = e.status==="error" || e.status==="loading" || (e.extTime && Date.now()/1000-e.extTime>1200) ? "前回値・" : "";
   return `<div class="num"><span class="e-tag">${label}</span><span class="e-px">${fmtPrice(e.ext, q.sym)}</span></div>
     <div class="e-pct num ${cls(e.extPct)}">${arrow(e.extPct)} ${fmtPct(e.extPct)}</div>
-    <div class="rm">${note}${esc(time)}</div>`;
+    <div class="rm">${note}${esc(time)}${e.extSrc ? " · "+esc(e.extSrc) : ""}</div>`;
 }
 /* ---- PER（実績TTM・Finnhub財務指標） ---- */
 const perCache = {};        // sym -> {pe, eps, t}
@@ -1347,6 +1421,7 @@ async function refresh(){
   if(refreshing) return;
   refreshing = true;
   $("#refresh-btn").textContent = "⟳ 更新中…";
+  refreshExtended(holdings).catch(()=>{ srcStat.extended="取得不可"; updateSrcStat(); });
   const all = [...new Set([...holdings, ...FUTURES, ...SECTORS, ...WORLD])];
   try{
   let done = 0, failed = 0;
@@ -1391,7 +1466,7 @@ function updateSrcStat(){
   const el = $("#src-stat");
   if(!el) return;
   const mark = v => v === "✓" ? `<span class="up-t">✓</span>` : v === "—" ? `<span class="rm">—</span>` : `<span class="down-t">${esc(v)}</span>`;
-  el.innerHTML = `データ源: Finnhub ${mark(srcStat.finnhub)} ／ Yahoo ${mark(srcStat.yahoo)} ／ Stooq ${mark(srcStat.stooq)}`;
+  el.innerHTML = `データ源: Finnhub ${mark(srcStat.finnhub)} ／ Yahoo ${mark(srcStat.yahoo)} ／ Stooq ${mark(srcStat.stooq)} ／ 時間外(CNBC) ${mark(srcStat.extended)}`;
 }
 
 function resetCountdown(){ countdown = +$("#interval-sel").value || 0; }
